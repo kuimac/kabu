@@ -16,6 +16,7 @@ PREVIEW_LIMIT = 5
 ATTR_ORDER = ["国内投信", "国内株", "東証外国株", "国内REIT", "米国株", "国内ETF", "米国ETF", "指数"]
 BUY_KINDS = {"買付", "買い", "buy"}
 SUBPAGES = [
+    ("analysis.html", "分析指標", "analysis"),
     ("quotes.html", "取得銘柄", "quotes"),
     ("instruments.html", "銘柄一覧", "instruments"),
     ("holdings.html", "保有", "holdings"),
@@ -1430,6 +1431,93 @@ def analysis_html(row: dict | None) -> str:
     return tech + '<div class="chart-card"><h3>ファンダメンタル</h3>' + fund_body + "</div>"
 
 
+def analysis_page(rows: list[dict]) -> str:
+    picked = [row for row in rows if str(row.get("rank") or "").strip()]
+    picked.sort(key=lambda row: int(row["rank"]))
+    body: list[str] = []
+    for row in picked:
+        change = row.get("change_pct") or ""
+        change_html = (
+            f'<span class="{pnl_class(to_float(change))}">{esc(change)}%</span>' if change else "—"
+        )
+        body.append(
+            "<tr><td class=\"num\">"
+            + esc(row.get("rank"))
+            + '</td><td><a href="'
+            + esc(symbol_href(row.get("symbol") or ""))
+            + '">'
+            + esc(row.get("name"))
+            + '</a><br><span class="code">'
+            + esc(row.get("symbol"))
+            + "</span></td><td>"
+            + esc(row.get("action"))
+            + '</td><td class="num">'
+            + esc(row.get("price") or "—")
+            + '</td><td class="num">'
+            + change_html
+            + "</td><td>"
+            + esc(row.get("decision"))
+            + "</td></tr>"
+        )
+    table = (
+        '<div class="table-wrap"><table><thead><tr>'
+        "<th>順</th><th>銘柄</th><th>判定</th><th>終値</th><th>前日比</th><th>解説</th>"
+        "</tr></thead><tbody>"
+        + "".join(body)
+        + "</tbody></table></div>"
+    )
+    if not body:
+        table = "<p>今回の取得では買い・売りが決まった銘柄がありません。</p>"
+    stamp = ""
+    for row in rows:
+        raw = str(row.get("as_of") or "").strip()
+        if len(raw) >= 16:
+            stamp = raw[:16] + " JST"
+            break
+    taken = f'<p class="muted">数値と解説は {esc(stamp)} の取得です。</p>' if stamp else ""
+    return (
+        '<section class="guide">'
+        + subpage_nav("analysis.html")
+        + "<h2>指標の意味</h2>"
+        + taken
+        + '<p class="muted">売り買いは、取得できた終値と実績の数字だけで決めています。'
+        "返ってこなかった項目は使いません。予想の数値は表示するだけで、判定には入れていません。"
+        "投資助言ではありません。</p>"
+        + "<h3>テクニカル</h3>"
+        + '<div class="table-wrap"><table><thead><tr><th>指標</th><th>見ているもの</th><th>判定</th></tr></thead><tbody>'
+        + "<tr><td>ゴールデンクロス</td><td>5日移動平均が、前日まで25日移動平均以下で、当日に上へ抜けたこと</td><td>買い</td></tr>"
+        + "<tr><td>デッドクロス</td><td>5日移動平均が、前日まで25日移動平均以上で、当日に下へ抜けたこと</td><td>売り</td></tr>"
+        + f"<tr><td>RSI(14)</td><td>14日の値幅から計算した、売られすぎ・買われすぎの位置</td><td>{analyze.RSI_LOW:.0f}以下は買い、{analyze.RSI_HIGH:.0f}以上は売り</td></tr>"
+        + f"<tr><td>押し目</td><td>直前の終値からの変化</td><td>前日比 {analyze.BUY_DIP_PCT:.0f}% 以下は買い</td></tr>"
+        + f"<tr><td>急騰</td><td>直前の終値からの変化</td><td>前日比 +{analyze.SURGE_PCT:.0f}% 以上は見送り。売り買いの決定には使わない</td></tr>"
+        + "<tr><td>横ばい</td><td>5日線と25日線の差が0.2%以内で、前日比が無いか絶対値が0.05%未満</td><td>RSIが極端でも、そのRSIは判定に使わない</td></tr>"
+        + "</tbody></table></div>"
+        + "<p>複数が同時に点いたときは、デッドクロス、RSI70以上、RSI30以下、ゴールデンクロス、押し目の順で先に一致した種類が売り買いを決めます。"
+        "売り買い候補の順位には含み損を入れていません。</p>"
+        + "<h3>ファンダメンタル</h3>"
+        + '<div class="table-wrap"><table><thead><tr><th>指標</th><th>見ているもの</th><th>判定</th></tr></thead><tbody>'
+        + f"<tr><td>PER（実績）</td><td>終値 ÷ 実績EPS</td><td>{rank_ideas.PE_CHEAP:.0f}倍以下は買い、{rank_ideas.PE_RICH:.0f}倍以上は売り。赤字のときは割安の買いには数えない</td></tr>"
+        + f"<tr><td>PBR</td><td>終値 ÷ 1株純資産</td><td>{rank_ideas.PBR_CHEAP:.0f}倍以下は買い、{rank_ideas.PBR_RICH:.0f}倍以上は売り。赤字のときは割安の買いには数えない</td></tr>"
+        + "<tr><td>EPS（実績）</td><td>1株あたり利益</td><td>マイナスは売り材料</td></tr>"
+        + "<tr><td>予想PER・予想EPS・配当利回り・時価総額・52週レンジ</td><td>取得できた値</td><td>表示のみ。判定には使わない</td></tr>"
+        + "</tbody></table></div>"
+        + "<h3>保有の監視</h3>"
+        + "<p>売り買い候補の順位とは別に、保有の含み損を見ています。"
+        + f"含み損 {analyze.SELL_REVIEW_LOSS_PCT:.0f}% 以下は売り検討、{analyze.WATCH_LOSS_PCT:.0f}% 以下は要監視です。"
+        "PayPay残高が月次積立の目安を下回るときは入金推奨です。</p>"
+        + "<h2>解説の読み方</h2>"
+        + "<p>「テクニカルが買いを決定」「テクニカルが売りを決定」は、上のテクニカルが先に売り買いを決めた文です。"
+        "「同じ側の材料」は、その判定と揃ったPER・PBR・EPSです。"
+        "「逆材料でスコアを下げた」は、反対側の材料で順位を下げた文です。"
+        "テクニカルが無いときは、「ファンダメンタルが買いを決定」または「ファンダメンタルが売りを決定」と書きます。"
+        "順位は、テクニカルの強さに同じ側の材料を足し、逆側の材料を半分だけ引いた大きさです。</p>"
+        + "<h2>今回の強い30件</h2>"
+        + '<p class="muted">トップの売り買い候補と同じ30件です。名前から個別ページの数値へ移動できます。</p>'
+        + table
+        + "</section>"
+    )
+
+
 def ideas_block(rows: list[dict], fold: int) -> str:
     picked = [row for row in rows if str(row.get("rank") or "").strip()]
     picked.sort(key=lambda row: int(row["rank"]))
@@ -1461,7 +1549,8 @@ def ideas_block(rows: list[dict], fold: int) -> str:
         '<p class="muted">取扱銘柄を今回取得した終値とファンダメンタルで見て、'
         "買いまたは売りが決まったもののうち強い30件です。はじめの5件を開き、残りは折りたたみます。"
         + _rule_text()
-        + "テクニカルが点いたときはそちらが売り買いを決め、ファンダメンタルは強さを足し引きするだけです。</p>"
+        + "テクニカルが点いたときはそちらが売り買いを決め、ファンダメンタルは強さを足し引きするだけです。"
+        '指標の意味と、この30件の解説は <a class="text-link" href="analysis.html">分析指標</a> にまとめています。</p>'
     )
     inner = '<div class="idea-list">' + "".join(cards) + "</div>" if cards else "<p>今回の取得では買い・売りが決まった銘柄がありません。</p>"
     return panel("top-ideas", "売り買い候補", "", intro, inner, len(cards), fold, None)
@@ -1568,7 +1657,7 @@ def symbol_page(row: dict, history: list[dict], prefix: str, analysis: dict | No
     return body, json.dumps(chart, ensure_ascii=False)
 
 
-def main() -> int:
+def main(symbols: bool = True) -> int:
     ensure_data_dir()
     holdings = read_csv(DATA / "holdings.csv")
     market = read_csv(DATA / "market.csv")
@@ -1611,6 +1700,13 @@ def main() -> int:
             ),
             updated,
             chart_json,
+        ),
+        "analysis.html": layout(
+            "分析指標",
+            "analysis",
+            analysis_page(analysis_rows),
+            updated,
+            None,
         ),
         "instruments.html": layout(
             "銘柄一覧",
@@ -1661,9 +1757,10 @@ def main() -> int:
         None,
     )
     symbol_dir = DOCS / "symbols"
-    symbol_dir.mkdir(exist_ok=True)
+    if symbols:
+        symbol_dir.mkdir(exist_ok=True)
     written: set[str] = set()
-    for row in quote_rows:
+    for row in quote_rows if symbols else []:
         body, chart_json = symbol_page(row, history, "../", analysis.get(row["symbol"]))
         safe = symbol_href(row["symbol"]).rsplit("/", 1)[-1]
         path = symbol_dir / safe
@@ -1673,9 +1770,10 @@ def main() -> int:
         )
         written.add(safe)
         print(f"wrote {path}")
-    for old in symbol_dir.glob("*.html"):
-        if old.name not in written:
-            old.unlink()
+    if symbols:
+        for old in symbol_dir.glob("*.html"):
+            if old.name not in written:
+                old.unlink()
     for name, html in pages.items():
         path = DOCS / name
         path.write_text(html, encoding="utf-8")
