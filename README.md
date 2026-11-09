@@ -44,6 +44,7 @@ python scripts/update_all.py
 |---------|------|
 | `data/holdings.csv` | 保有口数・取得額 |
 | `data/trades.csv` | 売買履歴。約定が無い保有は初期記録 |
+| `data/signal_ranks.csv` | 買い・売りの強さ上位（自動計算） |
 | `data/accumulations.csv` | 積立設定 |
 | `data/cash_balance.csv` | PayPay残高（手入力） |
 | `data/watchlist.csv` | 監視・おすすめ銘柄 |
@@ -77,6 +78,7 @@ PayPay証券の投信口数は **千口表示** として `unit_multiplier=1000`
 |---------|------|
 | `data/holdings.csv` | 保有口数・取得額 |
 | `data/trades.csv` | 売買履歴（初期記録と、以降の約定） |
+| `data/signal_ranks.csv` | 買い・売りの強さ上位（自動計算） |
 | `data/accumulations.csv` | 積立設定 |
 | `data/cash_balance.csv` | PayPay残高 |
 | `data/watchlist.csv` | 監視銘柄 |

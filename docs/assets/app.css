@@ -316,11 +316,16 @@ th {
 table.wide { min-width: 1080px; }
 .filter-empty { margin: 0.4rem 0; }
 
-.charts-grid {
+.charts-grid,
+.rank-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-top: 1rem;
+}
+.rank-grid h4 {
+  margin: 0 0 0.55rem;
+  font-size: 1rem;
 }
 .chart-card h3 { margin: 0 0 0.75rem; font-size: 1rem; }
 .chart-card canvas { width: 100% !important; max-height: 280px; }
@@ -354,7 +359,8 @@ table.wide { min-width: 1080px; }
   }
   body.menu-open .sidemenu-backdrop { display: block; }
   .topics-grid,
-  .charts-grid {
+  .charts-grid,
+  .rank-grid {
     grid-template-columns: 1fr;
   }
   .site-header { padding-top: 1.75rem; }

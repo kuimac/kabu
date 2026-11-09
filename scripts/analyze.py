@@ -328,6 +328,99 @@ def build_signals(holdings: list[dict], prices: list[dict], watchlist: list[dict
     return signals
 
 
+RANK_LIMIT = 10
+SKIP_SYMBOLS = {"USDJPY", "CASH"}
+
+
+def rank_trade_signals(
+    holdings: list[dict],
+    prices: list[dict],
+    watchlist: list[dict],
+    limit: int = RANK_LIMIT,
+) -> list[dict]:
+    """保有・未保有を混ぜ、買いと売りの強さ上位を返す。"""
+    as_of = now_jst().strftime("%Y-%m-%d %H:%M:%S%z")
+    universe: dict[str, dict] = {}
+
+    def ensure(symbol: str, name: str) -> dict | None:
+        if not symbol or symbol in SKIP_SYMBOLS:
+            return None
+        row = universe.setdefault(
+            symbol,
+            {"symbol": symbol, "name": name or symbol, "held": False, "pnl": None, "change": None},
+        )
+        if name and row["name"] == symbol:
+            row["name"] = name
+        return row
+
+    for holding in holdings:
+        row = ensure(holding.get("symbol", ""), holding.get("name", ""))
+        if row is None:
+            continue
+        row["held"] = True
+        row["name"] = holding.get("name") or row["name"]
+        row["pnl"] = pnl_pct(to_float(holding.get("cost_value")), to_float(holding.get("market_value")))
+    for item in watchlist:
+        row = ensure(item.get("symbol", ""), item.get("name", ""))
+        if row is not None and item.get("name"):
+            if not row["held"]:
+                row["name"] = item["name"]
+    for price in prices:
+        row = ensure(price.get("symbol", ""), price.get("name", ""))
+        if row is None:
+            continue
+        if price.get("name") and row["name"] == row["symbol"]:
+            row["name"] = price["name"]
+        row["change"] = to_float(price.get("change_pct"))
+
+    def sell_score(row: dict) -> float:
+        if row["held"] and row["pnl"] is not None:
+            return max(0.0, -row["pnl"])
+        change = row["change"] if row["change"] is not None else 0.0
+        return max(0.0, change)
+
+    def buy_score(row: dict) -> float:
+        if row["held"] and row["pnl"] is not None and row["pnl"] <= SELL_REVIEW_LOSS_PCT:
+            return 0.0
+        change = row["change"] if row["change"] is not None else 0.0
+        return max(0.0, -change)
+
+    def reason(side: str, row: dict) -> str:
+        change = row["change"]
+        change_text = "前日比なし" if change is None else f"前日比 {change:+.1f}%"
+        if side == "buy":
+            return f"{change_text}。短期の下落幅を買いの強さにしている。"
+        if row["held"] and row["pnl"] is not None:
+            return f"含み損 {row['pnl']:+.1f}%。保有の損失幅を売りの強さにしている。"
+        return f"{change_text}。未保有の上昇幅を売り・見送りの強さにしている。"
+
+    ranked: list[dict] = []
+    for side, score_of in (("buy", buy_score), ("sell", sell_score)):
+        scored = []
+        for row in universe.values():
+            score = score_of(row)
+            if score <= 0:
+                continue
+            scored.append((score, row))
+        scored.sort(key=lambda item: (-item[0], item[1]["name"]))
+        for index, (score, row) in enumerate(scored[:limit], start=1):
+            ranked.append(
+                {
+                    "as_of": as_of,
+                    "side": side,
+                    "rank": str(index),
+                    "symbol": row["symbol"],
+                    "name": row["name"],
+                    "held": "保有" if row["held"] else "未保有",
+                    "score": f"{score:.1f}",
+                    "change_pct": "" if row["change"] is None else f"{row['change']:.2f}",
+                    "pnl_pct": "" if row["pnl"] is None else f"{row['pnl']:.2f}",
+                    "reason": reason(side, row),
+                }
+            )
+    return ranked
+
+
 def monthly_accumulation_total(accums: list[dict]) -> float:
     total = 0.0
     for a in accums:
@@ -469,10 +562,16 @@ def main() -> int:
         cashflow,
         ["date", "event_type", "symbol", "amount_yen", "direction", "note"],
     )
+    ranks = rank_trade_signals(holdings, prices, watchlist)
+    write_csv(
+        DATA / "signal_ranks.csv",
+        ranks,
+        ["as_of", "side", "rank", "symbol", "name", "held", "score", "change_pct", "pnl_pct", "reason"],
+    )
 
     print(
         f"signals={len(signals)} watch_actions={len(watch_actions)} "
-        f"cashflow={len(cashflow)} monthly_need={monthly_need:.0f}"
+        f"cashflow={len(cashflow)} ranks={len(ranks)} monthly_need={monthly_need:.0f}"
     )
     return 0
 

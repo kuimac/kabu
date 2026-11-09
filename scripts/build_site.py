@@ -8,6 +8,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import analyze
 from common import DATA, DOCS, ensure_data_dir, now_jst, read_csv, to_float
 
 PREVIEW_LIMIT = 5
@@ -654,6 +655,58 @@ def topics_block(signals: list[dict], news: list[dict], fold: int) -> str:
     return panel("top-topics", "本日のトピック", "", intro, inner, count, fold, None)
 
 
+def signal_rank_table(rows: list[dict], side: str) -> str:
+    picked = [row for row in rows if row.get("side") == side]
+    if not picked:
+        return '<p class="muted">強さが付いた銘柄はありません。</p>'
+    body = []
+    for row in picked:
+        score = to_float(row.get("score"))
+        cls = "neg" if side == "sell" else "pos"
+        body.append(
+            '<tr><td class="num">'
+            + esc(row.get("rank"))
+            + "</td><td>"
+            + esc(row.get("name"))
+            + "</td><td>"
+            + esc(row.get("held"))
+            + '</td><td class="num '
+            + cls
+            + '">'
+            + esc(f"{score:.1f}")
+            + "</td><td>"
+            + esc(row.get("reason"))
+            + "</td></tr>"
+        )
+    return (
+        '<div class="table-wrap"><table><thead><tr>'
+        "<th>順</th><th>銘柄</th><th>区分</th><th>強さ</th><th>根拠</th>"
+        "</tr></thead><tbody>"
+        + "".join(body)
+        + "</tbody></table></div>"
+    )
+
+
+def signal_rank_block(rows: list[dict]) -> str:
+    buy_count = sum(1 for row in rows if row.get("side") == "buy")
+    sell_count = sum(1 for row in rows if row.get("side") == "sell")
+    intro = (
+        '<p class="muted">保有・未保有を分けず、価格がある銘柄を強さ順に最大10件ずつ並べます。'
+        "買いの強さは前日比の下落幅です。含み損が-20%以下の保有は売り見直し側なので買いからは外します。"
+        "売りの強さは、保有なら含み損の大きさ、未保有なら前日比の上昇幅です。"
+        f"いま買い {buy_count}件、売り {sell_count}件です。</p>"
+    )
+    tables = (
+        '<div class="rank-grid">'
+        '<div><h4>買いが強い</h4>'
+        + signal_rank_table(rows, "buy")
+        + '</div><div><h4>売りが強い</h4>'
+        + signal_rank_table(rows, "sell")
+        + "</div></div>"
+    )
+    return panel("top-signal-rank", "売買シグナルの強い銘柄", "", intro, tables, 0, 0, None)
+
+
 def charts_html() -> str:
     return (
         '<div class="charts-grid">'
@@ -863,6 +916,8 @@ def index_body(
     accums: list[dict],
     cash_rows: list[dict],
     watch_actions: list[dict],
+    prices: list[dict],
+    watchlist: list[dict],
 ) -> str:
     top_nav = menubar(
         "トップのメニュー",
@@ -871,6 +926,7 @@ def index_body(
             ("#top-holdings", "保有"),
             ("#top-trades", "売買履歴"),
             ("#top-topics", "トピック"),
+            ("#top-signal-rank", "強い売買"),
             ("instruments.html", "銘柄ページ"),
             ("holdings.html", "保有ページ"),
             ("trades.html", "履歴ページ"),
@@ -885,6 +941,7 @@ def index_body(
         + holdings_block(holdings, trades, PREVIEW_LIMIT, "top-holdings", "holdings.html")
         + trades_block(trades, PREVIEW_LIMIT, "top-trades", "trades.html")
         + topics_block(signals, news, PREVIEW_LIMIT)
+        + signal_rank_block(analyze.rank_trade_signals(holdings, prices, watchlist))
         + "</section>"
     )
     chart_nav = menubar(
@@ -935,6 +992,8 @@ def main() -> int:
                 accums,
                 cash_rows,
                 watch_actions,
+                prices,
+                watchlist,
             ),
             updated,
             chart_json,
