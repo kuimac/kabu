@@ -1,0 +1,6 @@
+symbol,name,asset_type,association_code,yahoo_ticker,reason
+1306,TOPIX連動型上場投資信託,etf,,1306.T,TOPIX代替・市場体温計
+2558,MAXISワールド株式(オール・カントリー)上場投信,etf,,2558.T,オルカンETF比較
+1540,純金上場信託(現物国内保管型),etf,,1540.T,分散候補・コモディティ
+spy,SPDR S&P 500 ETF Trust,etf,,SPY,米株指数比較
+qqq,Invesco QQQ Trust,etf,,QQQ,NASDAQ100監視

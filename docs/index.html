@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NISA 判断支援ダッシュボード</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/app.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script>
+  <script src="assets/charts.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <p class="brand">NISA Desk</p>
+      <h1>判断支援ダッシュボード</h1>
+      <p class="sub">PayPay証券の注文は手動。最終更新 2026-11-09 14:22 JST</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero-topics" id="top">
+      <div class="topics-header">
+        <p class="eyebrow">Topics</p>
+        <h2>本日のトピック</h2>
+        <p class="sub">緊急シグナル 3件 · ニュース話題 6件</p>
+      </div>
+      <div class="topics-grid">
+        <article class='topic-card topic-urgent'><p class='topic-tag'>緊急 · CONSIDER_SELL</p><h3>IHI</h3><p>含み損 -45.6%（閾値 -20%以下）。方針見直し候補。</p><p class='topic-action'>PayPay証券で一部売却を検討。売却代金は2〜3営業日後にPayPay口座へ。</p></article><article class='topic-card topic-urgent'><p class='topic-tag'>緊急 · CONSIDER_SELL</p><h3>ニッセイAI関連株式ファンド(為替ヘッジなし)</h3><p>含み損 -20.2%（閾値 -20%以下）。方針見直し候補。</p><p class='topic-action'>PayPay証券で一部売却を検討。売却代金は2〜3営業日後にPayPay口座へ。</p></article><article class='topic-card topic-urgent'><p class='topic-tag'>緊急 · CONSIDER_SELL</p><h3>エヌビディア</h3><p>含み損 -21.3%（閾値 -20%以下）。方針見直し候補。</p><p class='topic-action'>PayPay証券で一部売却を検討。売却代金は2〜3営業日後にPayPay口座へ。</p></article><article class='topic-card topic-watch'><p class='topic-tag'>注目 · WATCH</p><h3>積立フロー集中</h3><p>S&P500積立が月 50,000円とフローの約 42%を占める。</p></article><article class='topic-card topic-news'><p class='topic-tag'>ニュース · JPXマーケットニュース</p><h3><a href='https://www.jpx.co.jp/news/1031/20261109_01.html' target='_blank' rel='noopener'>[東証]新規上場日の初値決定前の気配運用について：（株）RECEPTIONIST</a></h3><p class='meta'>JPXマーケットニュース · 2026-11-09T13:00</p></article><article class='topic-card topic-news'><p class='topic-tag'>ニュース · JPXマーケットニュース</p><h3><a href='https://www.jpx.co.jp/news/2041/20261109-01.html' target='_blank' rel='noopener'>[TOCOM]TOCOM電力先物の取引高が過去最高を更新（2026年10月）</a></h3><p class='meta'>JPXマーケットニュース · 2026-11-09T11:00</p></article><article class='topic-card topic-news'><p class='topic-tag'>ニュース · JPXマーケットニュース</p><h3><a href='https://www.jpx.co.jp/news/1023/20261106-12.html' target='_blank' rel='noopener'>[東証]監理銘柄（確認中）の指定：（株）チャーム・ケア・コーポレーション</a></h3><p class='meta'>JPXマーケットニュース · 2026-11-06T18:10</p></article><article class='topic-card topic-news'><p class='topic-tag'>ニュース · JPXマーケットニュース</p><h3><a href='https://www.jpx.co.jp/news/1023/20261106-13.html' target='_blank' rel='noopener'>[東証]監理銘柄（確認中）の指定：（株）昭文社ホールディングス</a></h3><p class='meta'>JPXマーケットニュース · 2026-11-06T16:10</p></article><article class='topic-card topic-news'><p class='topic-tag'>ニュース · JPXマーケットニュース</p><h3><a href='https://www.jpx.co.jp/listing/stocks/new/index.html' target='_blank' rel='noopener'>[東証]新規上場の承認（グロース市場）：ＮＯＴＡ（株）</a></h3><p class='meta'>JPXマーケットニュース · 2026-11-06T16:00</p></article><article class='topic-card topic-news'><p class='topic-tag'>ニュース · JPXマーケットニュース</p><h3><a href='https://www.jpx.co.jp/news/1030/20261106-01.html' target='_blank' rel='noopener'>[東証]制限値幅の拡大：1銘柄</a></h3><p class='meta'>JPXマーケットニュース · 2026-11-06T15:45</p></article>
+      </div>
+    </section>
+
+    <section class="metrics-row">
+      <h2 class="sr-only">市場・残高サマリー</h2>
+      <article class='metric'><h3>TOPIX連動ETF(1306)</h3><p class='big'>402.50</p><p class='pos'>13.90 (3.58%)</p><p class='spark'>██▇▆▇▇▆▆▆▅▅▆▆▆▅▄▅▅▁▃</p></article><article class='metric'><h3>日経平均</h3><p class='big'>59029.84</p><p class='pos'>1595.07 (2.78%)</p><p class='spark'>█▇▇▅▅▅▅▅▄▄▃▄▄▅▄▄▃▃▁▁</p></article>
+      <article class="metric">
+        <h3>保有合計</h3>
+        <p class="big">208,020</p>
+        <p class="neg">-5,942 / 取得 213,962</p>
+      </article>
+      <article class="metric">
+        <h3>PayPay残高（手入力）</h3>
+        <p class="big">200,000</p>
+        <p class="muted">月次積立目安 120,000</p>
+      </article>
+    </section>
+
+    <section>
+      <h2>保有銘柄</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>銘柄</th><th>NISA</th><th>口数</th><th>評価額</th><th>損益</th><th>比率</th></tr></thead>
+          <tbody><tr><td>eMAXIS Slim 先進国株式インデックス(除く日本)</td><td>つみたて</td><td class='num'>15.271</td><td class='num'>66,774</td><td class='num pos'>11,323 (+20.4%)</td><td class='num'>32.1%</td></tr><tr><td>eMAXIS Slim 米国株式(S&P500)</td><td>つみたて/成長</td><td class='num'>11.088</td><td class='num'>47,407</td><td class='num neg'>-2,589 (-5.2%)</td><td class='num'>22.8%</td></tr><tr><td>ニッセイAI関連株式ファンド(為替ヘッジなし)</td><td>成長</td><td class='num'>6.852</td><td class='num'>44,306</td><td class='num neg'>-11,203 (-20.2%)</td><td class='num'>21.3%</td></tr><tr><td>ダイワ・ダイナミック・インド株式ファンド</td><td>成長</td><td class='num'>26.833</td><td class='num'>27,235</td><td class='num pos'>2,234 (+8.9%)</td><td class='num'>13.1%</td></tr><tr><td>eMAXIS Slim 全世界株式(オール・カントリー)</td><td>成長</td><td class='num'>3.989</td><td class='num'>14,492</td><td class='num neg'>-509 (-3.4%)</td><td class='num'>7.0%</td></tr><tr><td>IHI</td><td>成長</td><td class='num'>2.25</td><td class='num'>5,443</td><td class='num neg'>-4,560 (-45.6%)</td><td class='num'>2.6%</td></tr><tr><td>エヌビディア</td><td>成長</td><td class='num'>0.08</td><td class='num'>2,363</td><td class='num neg'>-638 (-21.3%)</td><td class='num'>1.1%</td></tr></tbody>
+        </table>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-card"><h3>構成比</h3><canvas id="allocChart"></canvas></div>
+        <div class="chart-card"><h3>銘柄別損益</h3><canvas id="pnlChart"></canvas></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>売買シグナル</h2>
+      <p class="muted">自動発注はしません。PayPay証券で手動執行してください。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>シグナル</th><th>対象</th><th>理由</th><th>推奨アクション</th></tr></thead>
+          <tbody><tr class='prio-high'><td><span class='badge'>CONSIDER_SELL</span></td><td>IHI</td><td>含み損 -45.6%（閾値 -20%以下）。方針見直し候補。</td><td>PayPay証券で一部売却を検討。売却代金は2〜3営業日後にPayPay口座へ。</td></tr><tr class='prio-high'><td><span class='badge'>CONSIDER_SELL</span></td><td>ニッセイAI関連株式ファンド(為替ヘッジなし)</td><td>含み損 -20.2%（閾値 -20%以下）。方針見直し候補。</td><td>PayPay証券で一部売却を検討。売却代金は2〜3営業日後にPayPay口座へ。</td></tr><tr class='prio-high'><td><span class='badge'>CONSIDER_SELL</span></td><td>エヌビディア</td><td>含み損 -21.3%（閾値 -20%以下）。方針見直し候補。</td><td>PayPay証券で一部売却を検討。売却代金は2〜3営業日後にPayPay口座へ。</td></tr><tr class='prio-medium'><td><span class='badge'>WATCH</span></td><td>積立フロー集中</td><td>S&P500積立が月 50,000円とフローの約 42%を占める。</td><td>オルカン/先進国とのバランスを定期確認。</td></tr><tr class='prio-low'><td><span class='badge'>HOLD</span></td><td>PayPay口座残高</td><td>残高 200,000円で月次積立目安 120,000円をカバー。</td><td>追加入金は任意。</td></tr><tr class='prio-low'><td><span class='badge'>HOLD</span></td><td>ダイワ・ダイナミック・インド株式ファンド</td><td>損益 +8.9%。特別なアクションなし。</td><td>積立を継続。</td></tr><tr class='prio-low'><td><span class='badge'>HOLD</span></td><td>eMAXIS Slim 全世界株式(オール・カントリー)</td><td>損益 -3.4%。特別なアクションなし。</td><td>積立を継続。</td></tr><tr class='prio-low'><td><span class='badge'>HOLD</span></td><td>eMAXIS Slim 先進国株式インデックス(除く日本)</td><td>含み益 20.4%。利確より長期保有が基本方針。</td><td>現状維持。必要なら一部リバランスのみ検討。</td></tr><tr class='prio-low'><td><span class='badge'>HOLD</span></td><td>eMAXIS Slim 米国株式(S&P500)</td><td>損益 -5.2%。特別なアクションなし。</td><td>積立を継続。</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>積立設定</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>銘柄</th><th>頻度</th><th>金額</th><th>枠</th><th>月次目安</th></tr></thead>
+          <tbody><tr><td>eMAXIS Slim 先進国株式インデックス(除く日本)</td><td>daily</td><td class='num'>500</td><td>つみたて</td><td class='num'>15,000</td></tr><tr><td>eMAXIS Slim 米国株式(S&P500)</td><td>monthly</td><td class='num'>25,000</td><td>つみたて</td><td class='num'>25,000</td></tr><tr><td>eMAXIS Slim 米国株式(S&P500)</td><td>monthly</td><td class='num'>25,000</td><td>成長</td><td class='num'>25,000</td></tr><tr><td>ニッセイAI関連株式ファンド(為替ヘッジなし)</td><td>daily</td><td class='num'>500</td><td>成長</td><td class='num'>15,000</td></tr><tr><td>ダイワ・ダイナミック・インド株式ファンド</td><td>monthly</td><td class='num'>25,000</td><td>成長</td><td class='num'>25,000</td></tr><tr><td>eMAXIS Slim 全世界株式(オール・カントリー)</td><td>daily</td><td class='num'>500</td><td>成長</td><td class='num'>15,000</td></tr></tbody>
+        </table>
+      </div>
+      <p class="muted">月次合計目安 120,000 円（毎日積立は営業日〜暦日換算の概算）</p>
+    </section>
+
+    <section>
+      <h2>資金スケジュール</h2>
+      <p class="muted">売却→PayPay着金（+2〜3営業日）→銀行引出（さらに+2〜3営業日）。買い直しはPayPay残高があれば市場時間中に即時。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>日付</th><th>種別</th><th>銘柄</th><th>金額</th><th>メモ</th></tr></thead>
+          <tbody><tr><td>2026-11-09</td><td>accumulation</td><td>nissei_ai</td><td class='num'>500</td><td>積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-09</td><td>accumulation</td><td>slim_acwi</td><td class='num'>500</td><td>積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-09</td><td>accumulation</td><td>slim_dev</td><td class='num'>500</td><td>積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-09</td><td>sell_sim</td><td>ihi</td><td class='num'></td><td>仮に今日売却した場合の起点（IHI）</td></tr><tr><td>2026-11-09</td><td>sell_sim</td><td>nissei_ai</td><td class='num'></td><td>仮に今日売却した場合の起点（ニッセイAI関連株式ファンド(為替ヘッジなし)）</td></tr><tr><td>2026-11-09</td><td>sell_sim</td><td>nvda</td><td class='num'></td><td>仮に今日売却した場合の起点（エヌビディア）</td></tr><tr><td>2026-11-10</td><td>accumulation</td><td>nissei_ai</td><td class='num'>500</td><td>積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-10</td><td>accumulation</td><td>slim_acwi</td><td class='num'>500</td><td>積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-10</td><td>accumulation</td><td>slim_dev</td><td class='num'>500</td><td>積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-11</td><td>accumulation</td><td>nissei_ai</td><td class='num'>500</td><td>積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-11</td><td>accumulation</td><td>slim_acwi</td><td class='num'>500</td><td>積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-11</td><td>accumulation</td><td>slim_dev</td><td class='num'>500</td><td>積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-12</td><td>accumulation</td><td>nissei_ai</td><td class='num'>500</td><td>積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-12</td><td>accumulation</td><td>slim_acwi</td><td class='num'>500</td><td>積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-12</td><td>accumulation</td><td>slim_dev</td><td class='num'>500</td><td>積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-12</td><td>paypay_credit</td><td>ihi</td><td class='num'></td><td>売却代金のPayPay口座着金目安（+3営業日・保守）</td></tr><tr><td>2026-11-12</td><td>paypay_credit</td><td>nissei_ai</td><td class='num'></td><td>売却代金のPayPay口座着金目安（+3営業日・保守）</td></tr><tr><td>2026-11-12</td><td>paypay_credit</td><td>nvda</td><td class='num'></td><td>売却代金のPayPay口座着金目安（+3営業日・保守）</td></tr><tr><td>2026-11-13</td><td>accumulation</td><td>nissei_ai</td><td class='num'>500</td><td>積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-13</td><td>accumulation</td><td>slim_acwi</td><td class='num'>500</td><td>積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-13</td><td>accumulation</td><td>slim_dev</td><td class='num'>500</td><td>積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-16</td><td>accumulation</td><td>nissei_ai</td><td class='num'>500</td><td>積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-16</td><td>accumulation</td><td>slim_acwi</td><td class='num'>500</td><td>積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-16</td><td>accumulation</td><td>slim_dev</td><td class='num'>500</td><td>積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-17</td><td>accumulation</td><td>nissei_ai</td><td class='num'>500</td><td>積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-17</td><td>accumulation</td><td>slim_acwi</td><td class='num'>500</td><td>積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-17</td><td>accumulation</td><td>slim_dev</td><td class='num'>500</td><td>積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-17</td><td>bank_withdraw</td><td>ihi</td><td class='num'></td><td>PayPay→銀行引出の着金目安（さらに+3営業日）。買い直しならPayPay内で即時利用可</td></tr><tr><td>2026-11-17</td><td>bank_withdraw</td><td>nissei_ai</td><td class='num'></td><td>PayPay→銀行引出の着金目安（さらに+3営業日）。買い直しならPayPay内で即時利用可</td></tr><tr><td>2026-11-17</td><td>bank_withdraw</td><td>nvda</td><td class='num'></td><td>PayPay→銀行引出の着金目安（さらに+3営業日）。買い直しならPayPay内で即時利用可</td></tr><tr><td>2026-11-18</td><td>accumulation</td><td>nissei_ai</td><td class='num'>500</td><td>積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-18</td><td>accumulation</td><td>slim_acwi</td><td class='num'>500</td><td>積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-18</td><td>accumulation</td><td>slim_dev</td><td class='num'>500</td><td>積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-19</td><td>accumulation</td><td>nissei_ai</td><td class='num'>500</td><td>積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-19</td><td>accumulation</td><td>slim_acwi</td><td class='num'>500</td><td>積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-19</td><td>accumulation</td><td>slim_dev</td><td class='num'>500</td><td>積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-20</td><td>accumulation</td><td>nissei_ai</td><td class='num'>500</td><td>積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-20</td><td>accumulation</td><td>slim_acwi</td><td class='num'>500</td><td>積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-20</td><td>accumulation</td><td>slim_dev</td><td class='num'>500</td><td>積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定</td></tr><tr><td>2026-11-24</td><td>accumulation</td><td>nissei_ai</td><td class='num'>500</td><td>積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>監視・おすすめ銘柄</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>銘柄</th><th>価格</th><th>変化%</th><th>理由</th></tr></thead>
+          <tbody><tr><td>TOPIX連動型上場投資信託</td><td class='num'>402.4000</td><td class='num pos'>3.55</td><td>TOPIX代替・市場体温計</td></tr><tr><td>MAXISワールド株式(オール・カントリー)上場投信</td><td class='num'>3379.0000</td><td class='num pos'>0.78</td><td>オルカンETF比較</td></tr><tr><td>純金上場信託(現物国内保管型)</td><td class='num'>19565.0000</td><td class='num pos'>2.46</td><td>分散候補・コモディティ</td></tr><tr><td>SPDR S&P 500 ETF Trust</td><td class='num'>735.2900</td><td class='num pos'>0.31</td><td>米株指数比較</td></tr><tr><td>Invesco QQQ Trust</td><td class='num'>656.1000</td><td class='num pos'>1.40</td><td>NASDAQ100監視</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>本ページは投資助言ではありません。最終判断はご自身で行ってください。</p>
+      <p>口座番号・銀行情報などの個人識別情報は含みません。データはCSVで管理しています。</p>
+      <p>更新: 2026-11-09 14:22 JST</p>
+    </div>
+  </footer>
+
+  <script id="chart-data" type="application/json">{"allocationLabels": ["eMAXIS Slim 先進国株式イ", "eMAXIS Slim 米国株式(S", "ニッセイAI関連株式ファンド(為替ヘ", "ダイワ・ダイナミック・インド株式ファ", "eMAXIS Slim 全世界株式(", "IHI", "エヌビディア"], "allocationValues": [66774.0, 47407.0, 44306.0, 27235.0, 14492.0, 5443.0, 2363.0], "pnlLabels": ["eMAXIS Slim 先進国株式イ", "eMAXIS Slim 米国株式(S", "ニッセイAI関連株式ファンド(為替ヘ", "ダイワ・ダイナミック・インド株式ファ", "eMAXIS Slim 全世界株式(", "IHI", "エヌビディア"], "pnlValues": [11323.0, -2589.0, -11203.0, 2234.0, -509.0, -4560.0, -638.0], "history": {"1306": [{"date": "2026-11-09", "price": 402.4}], "1540": [{"date": "2026-11-09", "price": 19565.0}], "2558": [{"date": "2026-11-09", "price": 3379.0}], "daiwa_india": [{"date": "2026-11-09", "price": 10150.0}], "ihi": [{"date": "2026-11-09", "price": 2419.0}], "nissei_ai": [{"date": "2026-11-09", "price": 64661.0}], "nvda": [{"date": "2026-11-09", "price": 186.64}], "qqq": [{"date": "2026-11-09", "price": 656.1}], "slim_acwi": [{"date": "2026-11-09", "price": 36330.0}], "slim_dev": [{"date": "2026-11-09", "price": 43726.0}], "slim_sp500": [{"date": "2026-11-09", "price": 42755.0}], "spy": [{"date": "2026-11-09", "price": 735.29}]}, "holdingSymbols": ["slim_dev", "slim_sp500", "nissei_ai", "daiwa_india", "slim_acwi", "ihi", "nvda"]}</script>
+</body>
+</html>

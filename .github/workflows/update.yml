@@ -1,0 +1,78 @@
+name: Update NISA dashboard
+
+on:
+  schedule:
+    # 日本市場 開場前 08:00 JST（月〜金）= 前日 23:00 UTC（日〜木）
+    - cron: "0 23 * * 0-4"
+    # 日本市場 閉場後 15:30 JST（月〜金）= 06:30 UTC（月〜金）
+    - cron: "30 6 * * 1-5"
+  workflow_dispatch:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: nisa-dashboard-update
+  cancel-in-progress: true
+
+jobs:
+  update:
+    if: >
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'issue_comment' &&
+        github.event.issue.pull_request == null &&
+        github.event.comment.user.login == github.repository_owner &&
+        contains(github.event.comment.body, '/update')
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch analyze and build
+        run: python scripts/update_all.py
+
+      - name: Summarize
+        run: python scripts/summarize.py | tee "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit data and site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data docs
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m "chore: refresh NISA dashboard data"
+            git push
+          fi
+
+      - name: Reply on issue
+        if: success() && github.event_name == 'issue_comment'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: gh issue comment "$ISSUE_NUMBER" --body-file "$GITHUB_STEP_SUMMARY"
+
+      - name: Reply on failure
+        if: failure() && github.event_name == 'issue_comment'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body "更新に失敗しました。ログ: ${RUN_URL}"

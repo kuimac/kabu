@@ -1,0 +1,7 @@
+symbol,name,schedule,amount_yen,nisa_type,day_of_month,monthly_estimate_yen,notes
+slim_dev,eMAXIS Slim 先進国株式インデックス(除く日本),daily,500,つみたて,,15000,営業日換算は約20〜22日
+slim_sp500,eMAXIS Slim 米国株式(S&P500),monthly,25000,つみたて,28,25000,
+slim_sp500,eMAXIS Slim 米国株式(S&P500),monthly,25000,成長,28,25000,
+nissei_ai,ニッセイAI関連株式ファンド(為替ヘッジなし),daily,500,成長,,15000,
+daiwa_india,ダイワ・ダイナミック・インド株式ファンド,monthly,25000,成長,28,25000,頻度未指定のため毎月28日と仮定
+slim_acwi,eMAXIS Slim 全世界株式(オール・カントリー),daily,500,成長,,15000,

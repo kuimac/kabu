@@ -1,0 +1,13 @@
+date,symbol,price,currency,source
+2026-11-09,1306,402.4000,JPY,yfinance
+2026-11-09,1540,19565.0000,JPY,yfinance
+2026-11-09,2558,3379.0000,JPY,yfinance
+2026-11-09,daiwa_india,10150.0000,JPY,yahoo_scrape
+2026-11-09,ihi,2419.0000,JPY,yfinance
+2026-11-09,nissei_ai,64661.0000,JPY,yahoo_scrape
+2026-11-09,nvda,186.6400,USD,yfinance
+2026-11-09,qqq,656.1000,JPY,yfinance
+2026-11-09,slim_acwi,36330.0000,JPY,mufg_api
+2026-11-09,slim_dev,43726.0000,JPY,mufg_api
+2026-11-09,slim_sp500,42755.0000,JPY,mufg_api
+2026-11-09,spy,735.2900,JPY,yfinance

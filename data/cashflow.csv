@@ -1,0 +1,112 @@
+date,event_type,symbol,amount_yen,direction,note
+2026-11-09,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-09,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-09,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-09,sell_sim,ihi,,info,仮に今日売却した場合の起点（IHI）
+2026-11-09,sell_sim,nissei_ai,,info,仮に今日売却した場合の起点（ニッセイAI関連株式ファンド(為替ヘッジなし)）
+2026-11-09,sell_sim,nvda,,info,仮に今日売却した場合の起点（エヌビディア）
+2026-11-10,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-10,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-10,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-11,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-11,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-11,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-12,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-12,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-12,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-12,paypay_credit,ihi,,in,売却代金のPayPay口座着金目安（+3営業日・保守）
+2026-11-12,paypay_credit,nissei_ai,,in,売却代金のPayPay口座着金目安（+3営業日・保守）
+2026-11-12,paypay_credit,nvda,,in,売却代金のPayPay口座着金目安（+3営業日・保守）
+2026-11-13,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-13,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-13,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-16,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-16,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-16,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-17,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-17,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-17,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-17,bank_withdraw,ihi,,in,PayPay→銀行引出の着金目安（さらに+3営業日）。買い直しならPayPay内で即時利用可
+2026-11-17,bank_withdraw,nissei_ai,,in,PayPay→銀行引出の着金目安（さらに+3営業日）。買い直しならPayPay内で即時利用可
+2026-11-17,bank_withdraw,nvda,,in,PayPay→銀行引出の着金目安（さらに+3営業日）。買い直しならPayPay内で即時利用可
+2026-11-18,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-18,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-18,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-19,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-19,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-19,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-20,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-20,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-20,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-24,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-24,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-24,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-25,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-25,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-25,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-26,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-26,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-26,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-27,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-27,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-27,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-30,accumulation,daiwa_india,25000,out,月次積立 ダイワ・ダイナミック・インド株式ファンド（指定日28日）
+2026-11-30,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-11-30,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-11-30,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-11-30,accumulation,slim_sp500,25000,out,月次積立 eMAXIS Slim 米国株式(S&P500)（指定日28日）
+2026-11-30,accumulation,slim_sp500,25000,out,月次積立 eMAXIS Slim 米国株式(S&P500)（指定日28日）
+2026-12-01,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-01,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-01,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-02,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-02,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-02,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-03,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-03,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-03,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-04,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-04,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-04,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-07,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-07,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-07,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-08,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-08,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-08,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-09,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-09,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-09,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-10,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-10,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-10,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-11,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-11,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-11,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-14,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-14,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-14,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-15,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-15,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-15,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-16,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-16,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-16,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-17,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-17,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-17,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-18,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-18,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-18,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-21,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-21,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-21,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-22,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-22,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-22,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-23,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-23,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-23,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
+2026-12-24,accumulation,nissei_ai,500,out,積立 ニッセイAI関連株式ファンド(為替ヘッジなし)（成長）PayPay即時引き落とし想定
+2026-12-24,accumulation,slim_acwi,500,out,積立 eMAXIS Slim 全世界株式(オール・カントリー)（成長）PayPay即時引き落とし想定
+2026-12-24,accumulation,slim_dev,500,out,積立 eMAXIS Slim 先進国株式インデックス(除く日本)（つみたて）PayPay即時引き落とし想定
