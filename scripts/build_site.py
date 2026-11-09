@@ -30,6 +30,9 @@ INDEX_SECTIONS = [
     ("#holdings", "保有の内訳"),
     ("#signals", "売買シグナル"),
 ]
+_CASH_NOTE = re.compile(
+    r"PayPay残高[0-9,]+円\s*[−\-ー–]\s*月次積立目安[0-9,]+円\s*=\s*余力[0-9,]+円"
+)
 
 
 def esc(value: object) -> str:
@@ -135,7 +138,7 @@ def layout(
         "      <div>\n"
         '        <p class="brand">NISA Desk</p>\n'
         f"        <h1>{esc(title)}</h1>\n"
-        f'        <p class="sub">PayPay証券の注文は手動。最終更新 {esc(updated)}</p>\n'
+        f'        <p class="sub">PayPay証券の注文は手動。最終更新 <span class="stamp">{esc(updated)}</span></p>\n'
         "      </div>\n"
         "    </div>\n"
         "  </header>\n"
@@ -1010,13 +1013,33 @@ def action_kind(action: str) -> str:
     return "other"
 
 
+def split_reserve(detail: str) -> tuple[str, str]:
+    """行ごとの繰り返しになる余力の一文を、本文と注記に分ける。"""
+    text = detail or ""
+    match = _CASH_NOTE.search(text)
+    if not match:
+        return text, ""
+    rest = (text[: match.start()] + text[match.end() :]).strip()
+    rest = re.sub(r"[ \t]{2,}", " ", rest).strip()
+    return rest, match.group(0)
+
+
 def watch_block(watch_actions: list[dict], fold: int) -> str:
     rows = []
+    reserve = ""
     for index, row in enumerate(watch_actions):
         change = to_float(row.get("change_pct"))
         buy = to_float(row.get("buy_yen"))
         sell = to_float(row.get("sell_yen"))
         action = row.get("action") or ""
+        detail, note = split_reserve(row.get("action_detail") or row.get("reason") or "")
+        if note and not reserve:
+            reserve = note
+        detail_html = esc(detail)
+        if note:
+            detail_html += '<span class="reserve-note"> ' + esc(note) + "</span>"
+        change_text = row.get("change_pct") or "—"
+        change_suffix = '<span class="pct-sign">%</span>' if change_text != "—" else ""
         rows.append(
             '<tr class="'
             + item_class(index, fold)
@@ -1026,30 +1049,37 @@ def watch_block(watch_actions: list[dict], fold: int) -> str:
             + action_kind(action)
             + '" data-signals="'
             + esc(row.get("signals") or "")
-            + '"><td class="num">'
+            + '"><td class="num col-rank">'
             + esc(row.get("rank"))
-            + "</td><td>"
+            + '</td><td class="col-name">'
             + esc(row.get("name"))
-            + '</td><td><span class="badge">'
+            + '</td><td class="col-action"><span class="badge">'
             + esc(action)
-            + '</span></td><td>'
+            + '</span></td><td class="col-signals">'
             + esc((row.get("signals") or "").replace(" ", "、") or "—")
-            + '</td><td class="num">'
+            + '</td><td class="num col-buy'
+            + ("" if buy > 0 else " is-empty")
+            + '"><span class="cell-label">買付</span>'
             + (yen(buy) if buy > 0 else "—")
-            + '</td><td class="num">'
+            + '</td><td class="num col-sell'
+            + ("" if sell > 0 else " is-empty")
+            + '"><span class="cell-label">売却</span>'
             + (yen(sell) if sell > 0 else "—")
-            + '</td><td class="num">'
+            + '</td><td class="num col-price"><span class="cell-label">価格</span>'
             + esc(row.get("price") or "—")
-            + '</td><td class="num '
+            + '</td><td class="num col-change '
             + pnl_class(change)
-            + '">'
-            + esc(row.get("change_pct") or "—")
-            + "</td><td>"
-            + esc(row.get("action_detail") or row.get("reason"))
+            + '"><span class="cell-label">変化</span>'
+            + esc(change_text)
+            + change_suffix
+            + '</td><td class="col-detail">'
+            + detail_html
             + "</td></tr>"
         )
+    reserve_html = f'<p class="reserve-once">{esc(reserve)}</p>' if reserve else ""
     table = (
-        '<div class="table-wrap"><table><thead><tr><th>順</th><th>銘柄</th><th>アクション</th><th>シグナル</th><th>買付目安</th><th>売却目安</th><th>価格</th><th>変化%</th><th>内容</th></tr></thead><tbody>'
+        reserve_html
+        + '<div class="table-wrap watch-table"><table><thead><tr><th>順</th><th>銘柄</th><th>アクション</th><th>シグナル</th><th>買付目安</th><th>売却目安</th><th>価格</th><th>変化%</th><th>内容</th></tr></thead><tbody>'
         + "".join(rows)
         + "</tbody></table></div>"
     )
