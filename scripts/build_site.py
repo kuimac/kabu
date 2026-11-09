@@ -19,6 +19,19 @@ SUBPAGES = [
     ("holdings.html", "保有", "holdings"),
     ("trades.html", "売買履歴", "trades"),
 ]
+INDEX_SECTIONS = [
+    ("#top-instruments", "銘柄一覧"),
+    ("#top-holdings", "保有"),
+    ("#top-trades", "売買履歴"),
+    ("#top-topics", "トピック"),
+    ("#top-signal-rank", "強い売買"),
+    ("#market", "市場と残高"),
+    ("#holdings", "保有の内訳"),
+    ("#signals", "売買シグナル"),
+    ("#accum", "積立"),
+    ("#cashflow", "資金スケジュール"),
+    ("#watch", "監視銘柄"),
+]
 
 
 def esc(value: object) -> str:
@@ -74,23 +87,13 @@ def sidemenu(current: str) -> str:
         return f'<a href="{esc(href)}"{current_attr}>{esc(text)}</a>'
 
     children = "".join(link(href, text, key) for href, text, key in SUBPAGES)
-    sections = [
-        ("index.html#market", "市場", "market"),
-        ("index.html#signals", "売買シグナル", "signals"),
-        ("index.html#accum", "積立", "accum"),
-        ("index.html#cashflow", "資金スケジュール", "cashflow"),
-        ("index.html#watch", "監視銘柄", "watch"),
-    ]
-    rest = "".join(link(href, text, key) for href, text, key in sections)
     return (
-        '<aside id="sidemenu" class="sidemenu" aria-label="ページ">'
+        '<aside id="sidemenu" class="sidemenu" aria-label="下層ページ">'
         '<p class="sidemenu-label">メニュー</p>'
         + link("index.html#top", "トップ", "home")
         + '<div class="sidemenu-group"><p class="sidemenu-sublabel">下層ページ</p>'
         + children
-        + "</div>"
-        + rest
-        + "</aside>"
+        + "</div></aside>"
     )
 
 
@@ -955,10 +958,7 @@ def watch_section(watch_actions: list[dict]) -> str:
             + esc(row.get("action_detail") or row.get("reason"))
             + "</td></tr>"
         )
-    nav = menubar(
-        "監視のメニュー",
-        [("#watch", "監視"), ("instruments.html", "銘柄一覧"), ("index.html#top-instruments", "トップの銘柄")],
-    )
+    nav = menubar("監視のメニュー", [("#watch", "監視"), ("#top-instruments", "トップの銘柄")])
     return (
         '<section id="watch"><h2>監視・おすすめ銘柄</h2>'
         + nav
@@ -989,24 +989,11 @@ def index_body(
     prices: list[dict],
     watchlist: list[dict],
 ) -> str:
-    top_nav = menubar(
-        "トップのメニュー",
-        [
-            ("#top-instruments", "銘柄一覧"),
-            ("#top-holdings", "保有"),
-            ("#top-trades", "売買履歴"),
-            ("#top-topics", "トピック"),
-            ("#top-signal-rank", "強い売買"),
-            ("instruments.html", "銘柄ページ"),
-            ("holdings.html", "保有ページ"),
-            ("trades.html", "履歴ページ"),
-        ],
-    )
+    page_nav = menubar("トップのセクション", INDEX_SECTIONS)
     top = (
         '<section class="hero-topics" id="top">'
         '<div class="topics-header"><p class="eyebrow">Top</p><h2>銘柄・保有・売買</h2>'
         '<p class="sub">はじめの5件を表示します。残りはこのセクションで開けます。</p></div>'
-        + top_nav
         + catalog_block(catalog, PREVIEW_LIMIT, "top-instruments", "instruments.html")
         + holdings_block(holdings, trades, PREVIEW_LIMIT, "top-holdings", "holdings.html")
         + trades_block(trades, PREVIEW_LIMIT, "top-trades", "trades.html")
@@ -1014,13 +1001,11 @@ def index_body(
         + signal_rank_block(analyze.rank_trade_signals(holdings, prices, watchlist), PREVIEW_LIMIT)
         + "</section>"
     )
-    chart_nav = menubar(
-        "保有チャートのメニュー",
-        [("#holdings", "チャート"), ("#top-holdings", "保有の数値"), ("holdings.html", "保有ページ")],
-    )
+    chart_nav = menubar("保有チャートのメニュー", [("#holdings", "チャート"), ("#top-holdings", "保有の数値")])
     charts = '<section id="holdings"><h2>保有の内訳</h2>' + chart_nav + charts_html() + "</section>"
     return (
-        top
+        page_nav
+        + top
         + market_section(market, holdings, accums, cash_rows)
         + charts
         + signal_section(signals)
