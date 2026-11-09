@@ -1,14 +1,14 @@
 symbol,name,price,currency,as_of,source,change,change_pct
-slim_dev,eMAXIS Slim 先進国株式インデックス(除く日本),43726.0000,JPY,2026-11-06,mufg_api,-1752,-3.85
-slim_sp500,eMAXIS Slim 米国株式(S&P500),42755.0000,JPY,2026-11-06,mufg_api,-2072,-4.62
+slim_dev,eMAXIS Slim 先進国株式インデックス(除く日本),43726.0000,JPY,2026-11-06,yahoo_scrape,-1752,-3.85
+slim_sp500,eMAXIS Slim 米国株式(S&P500),42755.0000,JPY,2026-11-06,yahoo_scrape,-2072,-4.62
 nissei_ai,ニッセイAI関連株式ファンド(為替ヘッジなし),64661.0000,JPY,2026-11-06,yahoo_scrape,-6950,-9.71
 daiwa_india,ダイワ・ダイナミック・インド株式ファンド,10150.0000,JPY,2026-11-06,yahoo_scrape,+243,+2.45
-slim_acwi,eMAXIS Slim 全世界株式(オール・カントリー),36330.0000,JPY,2026-11-06,mufg_api,-1399,-3.71
-ihi,IHI,2419.0000,JPY,2026-11-09,yfinance,127.0000,5.54
+slim_acwi,eMAXIS Slim 全世界株式(オール・カントリー),36330.0000,JPY,2026-11-06,yahoo_scrape,-1399,-3.71
+ihi,IHI,2420.5000,JPY,2026-11-09,yfinance,128.5000,5.61
 nvda,エヌビディア,186.6400,USD,2026-11-06,yfinance,5.0400,2.78
-1306,TOPIX連動型上場投資信託,402.4000,JPY,2026-11-09,yfinance,13.8000,3.55
-2558,MAXISワールド株式(オール・カントリー)上場投信,3379.0000,JPY,2026-11-09,yfinance,26.0000,0.78
-1540,純金上場信託(現物国内保管型),19565.0000,JPY,2026-11-09,yfinance,470.0000,2.46
+1306,TOPIX連動型上場投資信託,402.6000,JPY,2026-11-09,yfinance,14.0000,3.60
+2558,MAXISワールド株式(オール・カントリー)上場投信,3378.0000,JPY,2026-11-09,yfinance,25.0000,0.75
+1540,純金上場信託(現物国内保管型),19560.0000,JPY,2026-11-09,yfinance,465.0000,2.44
 spy,SPDR S&P 500 ETF Trust,735.2900,JPY,2026-11-06,yfinance,2.2900,0.31
 qqq,Invesco QQQ Trust,656.1000,JPY,2026-11-06,yfinance,9.0500,1.40
-USDJPY,米ドル円,158.2320,JPY,2026-11-09,yfinance,,
+USDJPY,米ドル円,158.2850,JPY,2026-11-09,yfinance,,
