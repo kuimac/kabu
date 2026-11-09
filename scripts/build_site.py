@@ -1014,6 +1014,7 @@ def watch_block(watch_actions: list[dict], fold: int) -> str:
     )
     intro = (
         '<p class="muted">価格を取得できた全銘柄から、買い候補と売り見直しを追加しています。'
+        "未保有は前日比が-5%以下のときだけ買い候補にします。"
         "はじめはおすすめ順です。売り優先は売り検討を上に、買い優先は買い検討を上に並べます。"
         "買付目安は PayPay残高 − 月次積立目安の余力から配分。売却目安は売り見直し対象の評価額です。"
         "投資助言ではありません。</p>"
@@ -1123,7 +1124,9 @@ def quotes_block(rows: list[dict]) -> str:
         fetched, stamp = format_fetched_at(quote.get("as_of") or "")
         time_attr = f' datetime="{esc(stamp)}"' if stamp else ""
         body.append(
-            "<tr><td><a href=\""
+            '<tr class="fold-item" data-attr="'
+            + esc(row["attribute"])
+            + '"><td><a href="'
             + esc(symbol_href(row["symbol"]))
             + '">'
             + esc(row["name"])
@@ -1156,7 +1159,7 @@ def quotes_block(rows: list[dict]) -> str:
         "保有・監視・比較に加え、yfinance が列挙できる東証の株式とETFを含みます。"
         "投信の全銘柄と、東証に無い米国株はこの一覧に足していません。</p>"
     )
-    return panel("", "取得できた銘柄", "", intro, table, len(rows), 0, None)
+    return panel("", "取得できた銘柄", "", intro, table, len(rows), 0, ordered_attrs(rows))
 
 
 def symbol_page(row: dict, history: list[dict], prefix: str) -> tuple[str, str]:

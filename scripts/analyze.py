@@ -99,7 +99,9 @@ def trade_candidates(holdings: list[dict], prices: list[dict]) -> list[dict]:
                     }
                 )
                 continue
-        if change < 0 and (pnl is None or pnl > SELL_REVIEW_LOSS_PCT):
+        held_dip = holding is not None and change < 0 and pnl is not None and pnl > SELL_REVIEW_LOSS_PCT
+        listed_dip = holding is None and change <= BUY_DIP_PCT
+        if held_dip or listed_dip:
             candidates.append(
                 {
                     "symbol": symbol,
