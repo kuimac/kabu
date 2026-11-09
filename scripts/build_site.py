@@ -729,16 +729,19 @@ def topics_block(signals: list[dict], news: list[dict], market: list[dict], fold
     return panel("top-topics", "本日のトピック", "", intro, quotes + topics, count, fold, None)
 
 
-def signal_rank_table(rows: list[dict], side: str) -> str:
+def signal_rank_table(rows: list[dict], side: str, fold: int) -> str:
     picked = [row for row in rows if row.get("side") == side]
+    title = "買いが強い" if side == "buy" else "売りが強い"
     if not picked:
-        return '<p class="muted">強さが付いた銘柄はありません。</p>'
+        return "<h4>" + title + '</h4><p class="muted">強さが付いた銘柄はありません。</p>'
     body = []
-    for row in picked:
+    for index, row in enumerate(picked):
         score = to_float(row.get("score"))
         cls = "neg" if side == "sell" else "pos"
         body.append(
-            '<tr><td class="num">'
+            '<tr class="'
+            + item_class(index, fold)
+            + '"><td class="num">'
             + esc(row.get("rank"))
             + "</td><td>"
             + esc(row.get("name"))
@@ -752,33 +755,49 @@ def signal_rank_table(rows: list[dict], side: str) -> str:
             + esc(row.get("reason"))
             + "</td></tr>"
         )
+    button = ""
+    if fold > 0 and len(picked) > fold:
+        button = (
+            '<button type="button" class="fold-toggle" data-fold-toggle aria-expanded="false">残り'
+            + str(len(picked) - fold)
+            + "件を表示</button>"
+        )
     return (
-        '<div class="table-wrap"><table><thead><tr>'
+        f'<div data-panel data-fold="{fold}" data-filter="all"><h4>'
+        + title
+        + '</h4><div class="table-wrap"><table><thead><tr>'
         "<th>順</th><th>銘柄</th><th>区分</th><th>強さ</th><th>根拠</th>"
         "</tr></thead><tbody>"
         + "".join(body)
         + "</tbody></table></div>"
+        + button
+        + "</div>"
     )
 
 
-def signal_rank_block(rows: list[dict]) -> str:
+def signal_rank_block(rows: list[dict], fold: int) -> str:
     buy_count = sum(1 for row in rows if row.get("side") == "buy")
     sell_count = sum(1 for row in rows if row.get("side") == "sell")
     intro = (
         '<p class="muted">保有・未保有を分けず、価格がある銘柄を強さ順に最大10件ずつ並べます。'
+        "はじめの5件を表示し、残りは開けます。"
         "買いの強さは前日比の下落幅です。含み損が-20%以下の保有は売り見直し側なので買いからは外します。"
         "売りの強さは、保有なら含み損の大きさ、未保有なら前日比の上昇幅です。"
         f"いま買い {buy_count}件、売り {sell_count}件です。</p>"
     )
     tables = (
         '<div class="rank-grid">'
-        '<div><h4>買いが強い</h4>'
-        + signal_rank_table(rows, "buy")
-        + '</div><div><h4>売りが強い</h4>'
-        + signal_rank_table(rows, "sell")
-        + "</div></div>"
+        + signal_rank_table(rows, "buy", fold)
+        + signal_rank_table(rows, "sell", fold)
+        + "</div>"
     )
-    return panel("top-signal-rank", "売買シグナルの強い銘柄", "", intro, tables, 0, 0, None)
+    return (
+        '<div class="top-block" id="top-signal-rank">'
+        '<div class="block-head"><h3>売買シグナルの強い銘柄</h3></div>'
+        + intro
+        + tables
+        + "</div>"
+    )
 
 
 def charts_html() -> str:
@@ -992,7 +1011,7 @@ def index_body(
         + holdings_block(holdings, trades, PREVIEW_LIMIT, "top-holdings", "holdings.html")
         + trades_block(trades, PREVIEW_LIMIT, "top-trades", "trades.html")
         + topics_block(signals, news, market, PREVIEW_LIMIT)
-        + signal_rank_block(analyze.rank_trade_signals(holdings, prices, watchlist))
+        + signal_rank_block(analyze.rank_trade_signals(holdings, prices, watchlist), PREVIEW_LIMIT)
         + "</section>"
     )
     chart_nav = menubar(

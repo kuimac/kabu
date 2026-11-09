@@ -1,11 +1,16 @@
 (function () {
+  function owned(panel, selector) {
+    return Array.prototype.filter.call(panel.querySelectorAll(selector), function (el) {
+      return el.closest("[data-panel]") === panel;
+    });
+  }
+
   function apply(panel) {
     var limit = Number(panel.getAttribute("data-fold") || "0");
     var filter = panel.getAttribute("data-filter") || "all";
     var open = panel.classList.contains("is-open");
-    var items = panel.querySelectorAll(".fold-item");
     var matched = 0;
-    items.forEach(function (el) {
+    owned(panel, ".fold-item").forEach(function (el) {
       var attr = el.getAttribute("data-attr") || "";
       var ok = filter === "all" || attr === filter;
       el.classList.toggle("is-hidden", !ok);
@@ -17,9 +22,9 @@
       var clip = !open && limit > 0 && matched > limit;
       el.classList.toggle("is-clipped", clip);
     });
-    var empty = panel.querySelector(".filter-empty");
+    var empty = owned(panel, ".filter-empty")[0];
     if (empty) empty.hidden = matched !== 0;
-    var btn = panel.querySelector("[data-fold-toggle]");
+    var btn = owned(panel, "[data-fold-toggle]")[0];
     if (!btn) return;
     var rest = matched - limit;
     if (limit > 0 && rest > 0) {
@@ -33,10 +38,10 @@
   }
 
   document.querySelectorAll("[data-panel]").forEach(function (panel) {
-    panel.querySelectorAll("[data-filter-value]").forEach(function (btn) {
+    owned(panel, "[data-filter-value]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         panel.setAttribute("data-filter", btn.getAttribute("data-filter-value") || "all");
-        panel.querySelectorAll("[data-filter-value]").forEach(function (other) {
+        owned(panel, "[data-filter-value]").forEach(function (other) {
           var on = other === btn;
           other.classList.toggle("is-on", on);
           other.setAttribute("aria-pressed", on ? "true" : "false");
@@ -44,7 +49,7 @@
         apply(panel);
       });
     });
-    var toggle = panel.querySelector("[data-fold-toggle]");
+    var toggle = owned(panel, "[data-fold-toggle]")[0];
     if (toggle) {
       toggle.addEventListener("click", function () {
         panel.classList.toggle("is-open");
