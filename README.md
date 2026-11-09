@@ -2,6 +2,17 @@
 
 PayPay NISA の保有・積立・市場ニュースをもとに、**売買の判断支援**と**資金スケジュール**を静的サイト（GitHub Pages）で可視化します。注文は自動では行いません。
 
+## GitHub Pages URL
+
+| ページ | URL |
+|--------|-----|
+| ダッシュボード（トップ） | https://kuimac.github.io/kabu/ |
+| 同上（index.html） | https://kuimac.github.io/kabu/index.html |
+| スタイルシート | https://kuimac.github.io/kabu/assets/app.css |
+| チャート用JS | https://kuimac.github.io/kabu/assets/charts.js |
+
+リポジトリ: https://github.com/kuimac/kabu
+
 ## できること
 
 - 保有銘柄の評価額・損益・構成比
@@ -51,7 +62,7 @@ PayPay証券の投信口数は **千口表示** として `unit_multiplier=1000`
 3. 1〜2 分後、同じ Issue に結果（市場・評価額・シグナル）が返信される
 4. 返信のリンクから公開ページを開く。反映が遅いときは少し待って再読み込みする
 
-同じ更新は、Actions タブの **Update NISA dashboard** → **Run workflow** からでも実行できます。6 時間ごとの自動更新はそのまま動きます。
+同じ更新は、Actions タブの **Update NISA dashboard** → **Run workflow** からでも実行できます。平日の開場前・閉場後の自動更新はそのまま動きます。
 
 `/update` はリポジトリの所有者のコメントだけが起動します。
 
@@ -74,7 +85,7 @@ PayPay証券の投信口数は **千口表示** として `unit_multiplier=1000`
 4. Actions の書き込み権限: Settings → Actions → General → Workflow permissions で **Read and write** を許可
 5. 初回は Actions の **Update NISA dashboard** を手動実行（workflow_dispatch）
 
-公開URL例: `https://<user>.github.io/<repo>/`
+公開URLは上記「GitHub Pages URL」を参照。
 
 ## データ源
 
