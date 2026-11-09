@@ -1,6 +1,7 @@
 """保有・監視銘柄の価格取得。"""
 from __future__ import annotations
 
+import math
 import sys
 from pathlib import Path
 
@@ -66,12 +67,21 @@ def fetch_yahoo_price(ticker: str) -> dict | None:
         hist = t.history(period="5d")
         if hist.empty:
             return None
-        closes = hist["Close"].tolist()
-        price = float(closes[-1])
-        prev = float(closes[-2]) if len(closes) > 1 else price
+        finite: list[tuple[object, float]] = []
+        for ts, raw in zip(hist.index, hist["Close"].tolist()):
+            try:
+                price = float(raw)
+            except (TypeError, ValueError):
+                continue
+            if math.isfinite(price) and price > 0:
+                finite.append((ts, price))
+        if not finite:
+            return None
+        as_of_raw, price = finite[-1]
+        prev = finite[-2][1] if len(finite) > 1 else price
         change = price - prev
         change_pct = change / prev * 100 if prev else 0.0
-        as_of = hist.index[-1].to_pydatetime().strftime("%Y-%m-%d")
+        as_of = as_of_raw.to_pydatetime().strftime("%Y-%m-%d")
         return {
             "price": price,
             "as_of": as_of,
@@ -199,6 +209,17 @@ def main() -> int:
         )
 
     history_rows = []
+    previous_by_symbol = {row["symbol"]: row for row in read_csv(DATA / "prices_latest.csv") if row.get("symbol")}
+
+    def _finite_price(value: object) -> float | None:
+        try:
+            price = float(value)  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            return None
+        if math.isfinite(price) and price > 0:
+            return price
+        return None
+
     for t in targets:
         symbol = t["symbol"]
         got = preset_prices.get(symbol)
@@ -228,6 +249,18 @@ def main() -> int:
                     "name": t["name"],
                 }
                 print(f"INFO {symbol}: implied NAV {nav:.2f}")
+        if got is not None and _finite_price(got.get("price")) is None:
+            print(f"WARN {symbol}: non-finite price")
+            got = None
+        prev = previous_by_symbol.get(symbol)
+        if got is not None and prev and (prev.get("as_of") or "")[:10] > (got.get("as_of") or "")[:10]:
+            print(f"WARN {symbol}: new bar {got.get('as_of')} is older than {prev.get('as_of')}")
+            got = None
+        if got is None and prev and _finite_price(prev.get("price")) is not None:
+            print(f"WARN {symbol}: keep previous price {prev['price']}")
+            latest.append(prev)
+            price_map[symbol] = {"price": float(prev["price"]), "source": prev.get("source", ""), "as_of": prev.get("as_of", "")}
+            continue
         if got is None:
             print(f"WARN no price for {symbol}")
             continue
