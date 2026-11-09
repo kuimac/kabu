@@ -316,6 +316,19 @@ th {
 table.wide { min-width: 1080px; }
 .filter-empty { margin: 0.4rem 0; }
 
+.holding-total {
+  margin: 0.15rem 0 0.75rem;
+  font-weight: 700;
+}
+.holding-total .num {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.35rem;
+}
+tfoot .holding-total-row td {
+  font-weight: 700;
+  background: rgba(15, 28, 26, 0.35);
+}
+
 .charts-grid,
 .rank-grid {
   display: grid;

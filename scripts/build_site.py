@@ -384,7 +384,8 @@ def instrument_table(rows: list[dict], fold: int) -> str:
 
 
 def holdings_table(holdings: list[dict], trades: list[dict], fold: int) -> str:
-    total = sum(to_float(row.get("market_value")) for row in holdings) or 1.0
+    total_market = sum(to_float(row.get("market_value")) for row in holdings)
+    total = total_market or 1.0
     body = []
     for index, holding in enumerate(holdings):
         market = to_float(holding.get("market_value"))
@@ -427,13 +428,32 @@ def holdings_table(holdings: list[dict], trades: list[dict], fold: int) -> str:
             + f"{ratio:.1f}%"
             + "</td></tr>"
         )
+    total_pnl = sum(to_float(row.get("unrealized_pnl")) for row in holdings)
+    total_cost = sum(to_float(row.get("cost_value")) for row in holdings)
+    total_rate = format_pct(total_pnl / total_cost * 100) if total_cost else "—"
+    footer = (
+        '<tfoot><tr class="holding-total-row"><td>合計</td><td></td><td></td><td></td><td></td><td></td>'
+        '<td class="num">'
+        + esc(yen(total_market))
+        + '</td><td class="num '
+        + pnl_class(total_pnl)
+        + '">'
+        + esc(signed_yen(total_pnl))
+        + '</td><td class="num '
+        + pnl_class(total_pnl)
+        + '">'
+        + esc(total_rate)
+        + '</td><td></td><td class="num">100.0%</td></tr></tfoot>'
+    )
     return (
         '<div class="table-wrap"><table class="wide"><thead><tr>'
         "<th>銘柄</th><th>番号</th><th>属性</th><th>数量</th><th>取得単価</th>"
         "<th>現在価格</th><th>評価額</th><th>騰落額</th><th>騰落率</th><th>購入日</th><th>比率</th>"
         "</tr></thead><tbody>"
         + "".join(body)
-        + "</tbody></table></div>"
+        + "</tbody>"
+        + footer
+        + "</table></div>"
     )
 
 
@@ -559,6 +579,29 @@ def catalog_block(catalog: list[dict], fold: int, panel_id: str, more_href: str)
     )
 
 
+def holdings_total_line(holdings: list[dict]) -> str:
+    total_pnl = sum(to_float(row.get("unrealized_pnl")) for row in holdings)
+    total_cost = sum(to_float(row.get("cost_value")) for row in holdings)
+    total_market = sum(to_float(row.get("market_value")) for row in holdings)
+    rate = format_pct(total_pnl / total_cost * 100) if total_cost else "—"
+    return (
+        '<p class="holding-total" data-holding-total>損益合計 '
+        '<span class="num '
+        + pnl_class(total_pnl)
+        + '">'
+        + esc(signed_yen(total_pnl))
+        + "円</span> "
+        '<span class="'
+        + pnl_class(total_pnl)
+        + '">('
+        + esc(rate)
+        + ")</span>"
+        '<span class="muted"> · 評価額合計 '
+        + esc(yen(total_market))
+        + "円</span></p>"
+    )
+
+
 def holdings_block(holdings: list[dict], trades: list[dict], fold: int, panel_id: str, more_href: str) -> str:
     attrs = ordered_attrs(
         [
@@ -570,7 +613,7 @@ def holdings_block(holdings: list[dict], trades: list[dict], fold: int, panel_id
         panel_id,
         "保有銘柄",
         more_href,
-        HOLDING_NOTE,
+        HOLDING_NOTE + holdings_total_line(holdings),
         holdings_table(holdings, trades, fold),
         len(holdings),
         fold,
