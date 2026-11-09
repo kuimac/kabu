@@ -20,13 +20,14 @@ PayPay NISA向け判断支援ダッシュボードを更新する。自動発注
 python scripts/update_all.py
 ```
 
-3. 結果を要約して伝える:
+3. コードまたは `docs/` を変えたら、最後に `main` へ fast-forward push して GitHub Pages（https://kuimac.github.io/kabu/）へ反映する。`origin/main` が今のコミットの祖先のときだけ `git push origin HEAD:main` する。祖先でないときは上書きしない。
+4. 結果を要約して伝える:
    - 先頭トピック（緊急シグナルとニュース話題）
    - `data/signals.csv` の high / medium シグナル
    - `data/market.csv` の主要指数（参考）
    - 保有合計評価額と合計損益（`data/holdings.csv`）
    - `docs/index.html` が更新されたこと
-4. 保有口数・積立・PayPay残高の変更がある場合は、該当CSVの編集を案内する:
+5. 保有口数・積立・PayPay残高の変更がある場合は、該当CSVの編集を案内する:
    - `data/holdings.csv`
    - `data/accumulations.csv`
    - `data/cash_balance.csv`

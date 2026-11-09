@@ -1,0 +1,21 @@
+---
+description: コード変更の最後に GitHub Pages（main の docs）へ push する
+alwaysApply: true
+---
+
+# Pages へ反映
+
+コードまたは生成済みサイト（`docs/`）を変えたら、作業の最後に GitHub Pages へ反映する。公開元は `main` ブランチの `/docs`。URL は https://kuimac.github.io/kabu/
+
+1. 今回の変更だけをコミットする。無関係な未コミットファイルは含めない。
+2. 作業ブランチを `git push -u origin <branch>` で push する。
+3. `origin/main` が今のコミットの祖先なら、fast-forward で公開ブランチへ送る。
+
+```bash
+git fetch origin main
+git merge-base --is-ancestor origin/main HEAD
+git push origin HEAD:main
+```
+
+4. `main` が進んでいて fast-forward できないときは上書きしない。止まった理由を伝える。
+5. 反映には 1〜2 分かかることがある。公開 URL を伝える。
