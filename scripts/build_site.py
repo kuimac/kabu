@@ -382,10 +382,13 @@ def panel(
     )
 
 
-def instrument_table(rows: list[dict], fold: int) -> str:
+def instrument_table(rows: list[dict], fold: int, history_index: dict[str, dict] | None = None) -> str:
+    history_index = history_index or {}
     body = []
     for index, row in enumerate(rows):
         badge = "badge" if row["kind"] == "保有" else "badge badge-muted"
+        span = history_index.get(row["symbol"])
+        change = to_float(span.get("change_pct")) if span else 0.0
         body.append(
             '<tr class="'
             + item_class(index, fold)
@@ -403,11 +406,17 @@ def instrument_table(rows: list[dict], fold: int) -> str:
             + badge
             + '">'
             + esc(row["kind"])
-            + "</span></td></tr>"
+            + '</span></td><td>'
+            + esc(history_span(span))
+            + '</td><td class="num '
+            + (pnl_class(change) if span else "")
+            + '">'
+            + (format_stored_pct(span.get("change_pct") or "") if span else "—")
+            + "</td></tr>"
         )
     return (
         '<div class="table-wrap"><table><thead><tr>'
-        "<th>名前</th><th>番号</th><th>属性</th><th>区分</th>"
+        "<th>名前</th><th>番号</th><th>属性</th><th>区分</th><th>履歴</th><th>期間騰落</th>"
         "</tr></thead><tbody>"
         + "".join(body)
         + "</tbody></table></div>"
@@ -572,6 +581,12 @@ def build_chart_payload(holdings: list[dict], history: list[dict]) -> dict:
         by_symbol.setdefault(row["symbol"], []).append(
             {"date": row["date"], "price": to_float(row["price"])}
         )
+    for holding in holdings:
+        series = load_symbol_series(holding["symbol"])
+        if series:
+            by_symbol[holding["symbol"]] = [
+                {"date": point["date"], "price": to_float(point["price"])} for point in series
+            ]
     for symbol in by_symbol:
         by_symbol[symbol].sort(key=lambda item: item["date"])
     return {
@@ -595,17 +610,24 @@ TRADE_NOTE = (
 CATALOG_NOTE = (
     '<p class="muted">価格を取得できた銘柄です。番号は投信の協会コード、株式・ETFのティッカーです。'
     "区分「公開」は、yfinance が列挙できる東証の株式・ETFです。日本語名はJPXの東証上場銘柄一覧で補っています。"
+    "履歴は過去5年の日次終値で、上場が短い銘柄は取得できた期間です。名前から個別ページのチャートを開けます。"
     "投信は保有分だけ、米ドル円はこの一覧に出しません。</p>"
 )
 
 
-def catalog_block(catalog: list[dict], fold: int, panel_id: str, more_href: str) -> str:
+def catalog_block(
+    catalog: list[dict],
+    fold: int,
+    panel_id: str,
+    more_href: str,
+    history_index: dict[str, dict] | None = None,
+) -> str:
     return panel(
         panel_id,
         "取得できた銘柄",
         more_href,
         CATALOG_NOTE,
-        instrument_table(catalog, fold),
+        instrument_table(catalog, fold, history_index),
         len(catalog),
         fold,
         ordered_attrs(catalog),
@@ -1122,7 +1144,23 @@ def fetched_quotes(catalog: list[dict], prices: list[dict]) -> list[dict]:
     return rows
 
 
+def load_history_index() -> dict[str, dict]:
+    return {row["symbol"]: row for row in read_csv(DATA / "history_index.csv") if row.get("symbol")}
+
+
+def load_symbol_series(symbol: str) -> list[dict]:
+    path = DATA / "history" / f"{symbol}.csv"
+    if "/" in symbol or not path.exists():
+        return []
+    points = [row for row in read_csv(path) if str(row.get("date") or "").strip() and str(row.get("price") or "").strip()]
+    points.sort(key=lambda row: row.get("date") or "")
+    return points
+
+
 def history_points(symbol: str, history: list[dict], quote: dict) -> list[dict]:
+    series = load_symbol_series(symbol)
+    if series:
+        return series
     points = [row for row in history if row.get("symbol") == symbol and str(row.get("price") or "").strip()]
     points.sort(key=lambda row: row.get("date") or "")
     if points:
@@ -1140,13 +1178,50 @@ def history_points(symbol: str, history: list[dict], quote: dict) -> list[dict]:
     return []
 
 
-def quotes_block(rows: list[dict]) -> str:
+def display_points(points: list[dict]) -> tuple[list[dict], bool]:
+    """表に出す点。日次が長いときは月末だけにする。"""
+    if len(points) <= 40:
+        return points, False
+    last: dict[str, dict] = {}
+    for point in points:
+        last[(point.get("date") or "")[:7]] = point
+    return [last[key] for key in sorted(last)], True
+
+
+def history_summary(points: list[dict]) -> dict[str, str] | None:
+    if len(points) < 2:
+        return None
+    prices = [to_float(point.get("price")) for point in points]
+    first, last = prices[0], prices[-1]
+    change = (last - first) / first * 100 if first else 0.0
+    return {
+        "start": points[0].get("date") or "",
+        "end": points[-1].get("date") or "",
+        "bars": str(len(points)),
+        "first": f"{first:.4f}",
+        "last": f"{last:.4f}",
+        "high": f"{max(prices):.4f}",
+        "low": f"{min(prices):.4f}",
+        "change_pct": f"{change:.2f}",
+    }
+
+
+def history_span(row: dict | None) -> str:
+    if not row or not row.get("start"):
+        return "—"
+    return f"{row['start']}〜{row['end']}"
+
+
+def quotes_block(rows: list[dict], history_index: dict[str, dict] | None = None) -> str:
+    history_index = history_index or {}
     body = []
     for row in rows:
         quote = row["quote"]
         change = to_float(quote.get("change_pct"))
         fetched, stamp = format_fetched_at(quote.get("as_of") or "")
         time_attr = f' datetime="{esc(stamp)}"' if stamp else ""
+        span = history_index.get(row["symbol"])
+        period = to_float(span.get("change_pct")) if span else 0.0
         body.append(
             '<tr class="fold-item" data-attr="'
             + esc(row["attribute"])
@@ -1164,6 +1239,12 @@ def quotes_block(rows: list[dict]) -> str:
             + pnl_class(change)
             + '">'
             + esc(quote.get("change_pct") or "—")
+            + '</td><td>'
+            + esc(history_span(span))
+            + '</td><td class="num '
+            + (pnl_class(period) if span else "")
+            + '">'
+            + (format_stored_pct(span.get("change_pct") or "") if span else "—")
             + '</td><td class="as-of"><time'
             + time_attr
             + ">"
@@ -1172,14 +1253,15 @@ def quotes_block(rows: list[dict]) -> str:
         )
     table = (
         '<div class="table-wrap"><table><thead><tr>'
-        "<th>名前</th><th>番号</th><th>属性</th><th>価格</th><th>前日比%</th><th>取得時点</th>"
+        "<th>名前</th><th>番号</th><th>属性</th><th>価格</th><th>前日比%</th><th>履歴</th><th>期間騰落</th><th>取得時点</th>"
         "</tr></thead><tbody>"
         + "".join(body)
         + "</tbody></table></div>"
     )
     intro = (
         '<p class="muted">価格を取得できた銘柄です。取得時点はデータに記録された日付で、'
-        "時刻まで入っているものだけ時刻を表示します。名前から個別ページのチャートを開けます。"
+        "時刻まで入っているものだけ時刻を表示します。履歴は過去5年の日次終値で、"
+        "上場が短い銘柄は取得できた期間です。名前から個別ページのチャートを開けます。"
         "保有・監視・比較に加え、yfinance が列挙できる東証の株式とETFを含みます。"
         "投信の全銘柄と、東証に無い米国株はこの一覧に足していません。</p>"
     )
@@ -1192,8 +1274,9 @@ def symbol_page(row: dict, history: list[dict], prefix: str) -> tuple[str, str]:
     fetched, stamp = format_fetched_at(quote.get("as_of") or "")
     time_attr = f' datetime="{esc(stamp)}"' if stamp else ""
     change = to_float(quote.get("change_pct"))
+    shown, monthly = display_points(points)
     point_rows = []
-    for point in points:
+    for point in shown:
         when, point_stamp = format_fetched_at(point.get("date") or "")
         point_time = f' datetime="{esc(point_stamp)}"' if point_stamp else ""
         point_rows.append(
@@ -1204,11 +1287,36 @@ def symbol_page(row: dict, history: list[dict], prefix: str) -> tuple[str, str]:
             + '</time></td><td class="num">'
             + esc(point.get("price") or "—")
             + "</td><td>"
-            + esc(point.get("currency") or quote.get("currency") or "")
+            + esc(point.get("currency") or quote.get("currency") or "JPY")
             + "</td><td>"
-            + esc(point.get("source") or "")
+            + esc(point.get("source") or "yfinance")
             + "</td></tr>"
         )
+    summary = history_summary(points)
+    if summary:
+        summary_html = (
+            "<p>履歴 "
+            + esc(summary["start"])
+            + " 〜 "
+            + esc(summary["end"])
+            + "（"
+            + esc(summary["bars"])
+            + "日）。始値 "
+            + esc(summary["first"])
+            + "、終値 "
+            + esc(summary["last"])
+            + "、高値 "
+            + esc(summary["high"])
+            + "、安値 "
+            + esc(summary["low"])
+            + '、期間騰落 <span class="'
+            + pnl_class(to_float(summary["change_pct"]))
+            + '">'
+            + esc(format_stored_pct(summary["change_pct"]))
+            + "</span>。</p>"
+        )
+    else:
+        summary_html = "<p>過去5年の終値はまだありません。</p>"
     chart = {
         "priceLabels": [point.get("date") or "" for point in points],
         "priceValues": [to_float(point.get("price")) for point in points],
@@ -1239,10 +1347,21 @@ def symbol_page(row: dict, history: list[dict], prefix: str) -> tuple[str, str]:
         + ">"
         + esc(fetched)
         + "</time></p>"
-        + '<div class="chart-card"><h3>記録した価格</h3>'
+        + summary_html
+        + '<div class="chart-card"><h3>'
+        + ("過去5年の終値" if summary else "記録した価格")
+        + "</h3>"
         '<canvas id="priceChart"></canvas>'
-        '<p class="muted">横軸は記録日です。時刻が記録されていない点は日付だけを表示します。</p></div>'
-        + '<div class="table-wrap"><table><thead><tr><th>記録</th><th>価格</th><th>通貨</th><th>取得元</th></tr></thead><tbody>'
+        '<p class="muted">'
+        + (
+            "横軸は日次の終値です。上場が5年未満の銘柄は、取得できた期間を描きます。下の表は月末の終値です。"
+            if monthly
+            else "横軸は記録した終値です。"
+        )
+        + "</p></div>"
+        + '<div class="table-wrap"><table><thead><tr><th>'
+        + ("月末" if monthly else "記録")
+        + "</th><th>価格</th><th>通貨</th><th>取得元</th></tr></thead><tbody>"
         + "".join(point_rows)
         + "</tbody></table></div></section>"
     )
@@ -1266,6 +1385,7 @@ def main() -> int:
     universe = read_csv(DATA / "universe.csv")
     quote_universe = read_csv(DATA / "quote_universe.csv")
     catalog = build_catalog(holdings, watchlist, prices, universe, quote_universe)
+    history_index = load_history_index()
     chart_json = json.dumps(build_chart_payload(holdings, history), ensure_ascii=False)
     updated = now_jst().strftime("%Y-%m-%d %H:%M JST")
     pages = {
@@ -1292,7 +1412,7 @@ def main() -> int:
         "instruments.html": layout(
             "銘柄一覧",
             "instruments",
-            "<section>" + subpage_nav("instruments.html") + catalog_block(catalog, 0, "", "") + "</section>",
+            "<section>" + subpage_nav("instruments.html") + catalog_block(catalog, 0, "", "", history_index) + "</section>",
             updated,
             None,
         ),
@@ -1333,7 +1453,7 @@ def main() -> int:
     pages["quotes.html"] = layout(
         "取得銘柄",
         "quotes",
-        "<section>" + subpage_nav("quotes.html") + quotes_block(quote_rows) + "</section>",
+        "<section>" + subpage_nav("quotes.html") + quotes_block(quote_rows, history_index) + "</section>",
         updated,
         None,
     )

@@ -79,7 +79,7 @@
           borderColor: accent,
           backgroundColor: "rgba(62, 207, 142, 0.16)",
           pointBackgroundColor: accent,
-          pointRadius: 4,
+          pointRadius: data.priceLabels.length > 60 ? 0 : 4,
           tension: 0.15,
           fill: true
         }]
@@ -89,7 +89,7 @@
         scales: {
           x: {
             title: { display: true, text: "記録日", color: muted },
-            ticks: { maxRotation: 45, minRotation: 0 }
+            ticks: { maxRotation: 0, minRotation: 0, maxTicksLimit: 8, autoSkip: true }
           },
           y: { grid: { color: grid } }
         }
