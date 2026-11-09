@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
@@ -272,6 +273,21 @@ def rate_label(holding: dict, trades: list[dict], pnl: float, cost: float) -> st
     if not cost:
         return "—"
     return format_pct(pnl / cost * 100)
+
+
+def format_fetched_at(raw: str) -> tuple[str, str]:
+    """取得日時の表示文と time 要素用の値。時刻が無いデータには時刻を足さない。"""
+    text = (raw or "").strip()
+    if not text:
+        return "取得日時 未記録", ""
+    matched = re.fullmatch(r"(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})([+-]\d{2})(\d{2})", text)
+    if matched and matched.group(3) == "+09":
+        visible = f"取得 {matched.group(1)} {matched.group(2)} JST"
+        stamp = f"{matched.group(1)}T{matched.group(2)}+09:00"
+        return visible, stamp
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
+        return f"取得 {text}", text
+    return f"取得 {text}", ""
 
 
 def show_date(value: str) -> str:
@@ -656,6 +672,8 @@ def market_section(market: list[dict], holdings: list[dict], accums: list[dict],
     cards = []
     for row in market:
         change = to_float(row.get("change_pct"))
+        fetched, stamp = format_fetched_at(row.get("as_of") or "")
+        time_attr = f' datetime="{esc(stamp)}"' if stamp else ""
         cards.append(
             '<article class="metric"><h3>'
             + esc(row.get("name"))
@@ -667,7 +685,11 @@ def market_section(market: list[dict], holdings: list[dict], accums: list[dict],
             + esc(row.get("change"))
             + " ("
             + esc(row.get("change_pct"))
-            + '%)</p><p class="spark">'
+            + '%)</p><p class="as-of"><time'
+            + time_attr
+            + ">"
+            + esc(fetched)
+            + '</time></p><p class="spark">'
             + esc(row.get("sparkline"))
             + "</p></article>"
         )

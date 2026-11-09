@@ -187,8 +187,14 @@ section > h2 {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   letter-spacing: 0.02em;
   color: var(--muted);
-  margin: 0.4rem 0 0.8rem;
+  margin: 0.35rem 0 0;
 }
+.as-of {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.as-of time { color: inherit; }
 
 .metrics-row {
   display: grid;
