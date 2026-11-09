@@ -201,6 +201,7 @@ section > h2 {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0.9rem;
 }
+.topic-markets { margin: 0.2rem 0 1rem; }
 .metric h3 {
   margin: 0;
   font-size: 0.86rem;

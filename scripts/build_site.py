@@ -682,20 +682,51 @@ def topic_cards(signals: list[dict], news: list[dict]) -> list[str]:
     return cards
 
 
-def topics_block(signals: list[dict], news: list[dict], fold: int) -> str:
-    cards = topic_cards(signals, news)
+def market_quote_cards(market: list[dict]) -> str:
+    cards = []
+    for row in market:
+        change = to_float(row.get("change_pct"))
+        fetched, stamp = format_fetched_at(row.get("as_of") or "")
+        time_attr = f' datetime="{esc(stamp)}"' if stamp else ""
+        cards.append(
+            '<article class="metric"><h3>'
+            + esc(row.get("name"))
+            + '</h3><p class="big">'
+            + esc(row.get("price"))
+            + '</p><p class="'
+            + pnl_class(change)
+            + '">'
+            + esc(row.get("change"))
+            + " ("
+            + esc(row.get("change_pct"))
+            + '%)</p><p class="as-of"><time'
+            + time_attr
+            + ">"
+            + esc(fetched)
+            + '</time></p><p class="spark">'
+            + esc(row.get("sparkline"))
+            + "</p></article>"
+        )
     if not cards:
-        inner = '<p class="muted">表示できるトピックがありません。</p>'
+        return ""
+    return '<div class="metrics-row topic-markets">' + "".join(cards) + "</div>"
+
+
+def topics_block(signals: list[dict], news: list[dict], market: list[dict], fold: int) -> str:
+    cards = topic_cards(signals, news)
+    quotes = market_quote_cards(market)
+    if not cards:
+        topics = '<p class="muted">表示できるトピックがありません。</p>'
         count = 0
     else:
         wrapped = []
         for index, card in enumerate(cards):
             wrapped.append(card.replace('class="topic-card', 'class="' + item_class(index, fold) + " topic-card", 1))
-        inner = '<div class="topics-grid">' + "".join(wrapped) + "</div>"
+        topics = '<div class="topics-grid">' + "".join(wrapped) + "</div>"
         count = len(cards)
     urgent_count = len([row for row in signals if row.get("priority") == "high"])
     intro = '<p class="muted">緊急シグナル ' + str(urgent_count) + "件</p>"
-    return panel("top-topics", "本日のトピック", "", intro, inner, count, fold, None)
+    return panel("top-topics", "本日のトピック", "", intro, quotes + topics, count, fold, None)
 
 
 def signal_rank_table(rows: list[dict], side: str) -> str:
@@ -759,36 +790,13 @@ def charts_html() -> str:
     )
 
 
-def market_section(market: list[dict], holdings: list[dict], accums: list[dict], cash_rows: list[dict]) -> str:
+def market_section(_market: list[dict], holdings: list[dict], accums: list[dict], cash_rows: list[dict]) -> str:
     total_market = sum(to_float(row.get("market_value")) for row in holdings)
     total_pnl = sum(to_float(row.get("unrealized_pnl")) for row in holdings)
     total_cost = sum(to_float(row.get("cost_value")) for row in holdings)
     monthly = sum(to_float(row.get("monthly_estimate_yen")) for row in accums)
     cash = to_float(cash_rows[0].get("paypay_balance_yen")) if cash_rows else 0
     cards = []
-    for row in market:
-        change = to_float(row.get("change_pct"))
-        fetched, stamp = format_fetched_at(row.get("as_of") or "")
-        time_attr = f' datetime="{esc(stamp)}"' if stamp else ""
-        cards.append(
-            '<article class="metric"><h3>'
-            + esc(row.get("name"))
-            + '</h3><p class="big">'
-            + esc(row.get("price"))
-            + '</p><p class="'
-            + pnl_class(change)
-            + '">'
-            + esc(row.get("change"))
-            + " ("
-            + esc(row.get("change_pct"))
-            + '%)</p><p class="as-of"><time'
-            + time_attr
-            + ">"
-            + esc(fetched)
-            + '</time></p><p class="spark">'
-            + esc(row.get("sparkline"))
-            + "</p></article>"
-        )
     cards.append(
         '<article class="metric"><h3>保有合計</h3><p class="big">'
         + yen(total_market)
@@ -807,7 +815,7 @@ def market_section(market: list[dict], holdings: list[dict], accums: list[dict],
         + yen(monthly)
         + "</p></article>"
     )
-    nav = menubar("市場のメニュー", [("#market", "市場"), ("#top", "トップの銘柄")])
+    nav = menubar("市場のメニュー", [("#market", "残高"), ("#top-topics", "日経・TOPIX")])
     return (
         '<section id="market"><h2>市場と残高</h2>'
         + nav
@@ -983,7 +991,7 @@ def index_body(
         + catalog_block(catalog, PREVIEW_LIMIT, "top-instruments", "instruments.html")
         + holdings_block(holdings, trades, PREVIEW_LIMIT, "top-holdings", "holdings.html")
         + trades_block(trades, PREVIEW_LIMIT, "top-trades", "trades.html")
-        + topics_block(signals, news, PREVIEW_LIMIT)
+        + topics_block(signals, news, market, PREVIEW_LIMIT)
         + signal_rank_block(analyze.rank_trade_signals(holdings, prices, watchlist))
         + "</section>"
     )
