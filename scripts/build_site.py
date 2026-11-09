@@ -22,6 +22,7 @@ SUBPAGES = [
 INDEX_SECTIONS = [
     ("#top-instruments", "銘柄一覧"),
     ("#top-holdings", "保有"),
+    ("#watch", "監視銘柄"),
     ("#top-trades", "売買履歴"),
     ("#top-topics", "トピック"),
     ("#top-signal-rank", "強い売買"),
@@ -30,7 +31,6 @@ INDEX_SECTIONS = [
     ("#signals", "売買シグナル"),
     ("#accum", "積立"),
     ("#cashflow", "資金スケジュール"),
-    ("#watch", "監視銘柄"),
 ]
 
 
@@ -931,19 +931,34 @@ def cashflow_section(cashflow: list[dict]) -> str:
     )
 
 
-def watch_section(watch_actions: list[dict]) -> str:
+def action_kind(action: str) -> str:
+    if "売" in action:
+        return "sell"
+    if "買" in action:
+        return "buy"
+    return "other"
+
+
+def watch_block(watch_actions: list[dict], fold: int) -> str:
     rows = []
-    for row in watch_actions:
+    for index, row in enumerate(watch_actions):
         change = to_float(row.get("change_pct"))
         buy = to_float(row.get("buy_yen"))
         sell = to_float(row.get("sell_yen"))
+        action = row.get("action") or ""
         rows.append(
-            '<tr><td class="num">'
+            '<tr class="'
+            + item_class(index, fold)
+            + '" data-rank="'
+            + esc(row.get("rank") or str(index + 1))
+            + '" data-action="'
+            + action_kind(action)
+            + '"><td class="num">'
             + esc(row.get("rank"))
             + "</td><td>"
             + esc(row.get("name"))
             + '</td><td><span class="badge">'
-            + esc(row.get("action"))
+            + esc(action)
             + '</span></td><td class="num">'
             + (yen(buy) if buy > 0 else "—")
             + '</td><td class="num">'
@@ -958,15 +973,23 @@ def watch_section(watch_actions: list[dict]) -> str:
             + esc(row.get("action_detail") or row.get("reason"))
             + "</td></tr>"
         )
-    nav = menubar("監視のメニュー", [("#watch", "監視"), ("#top-instruments", "トップの銘柄")])
-    return (
-        '<section id="watch"><h2>監視・おすすめ銘柄</h2>'
-        + nav
-        + '<p class="muted">おすすめ順（スコア高い順）。価格を取得できた全銘柄から、買い候補と売り見直しを追加しています。買付目安は PayPay残高 − 月次積立目安の余力から配分。売却目安は売り見直し対象の評価額です。投資助言ではありません。</p>'
-        + '<div class="table-wrap"><table><thead><tr><th>順</th><th>銘柄</th><th>アクション</th><th>買付目安</th><th>売却目安</th><th>価格</th><th>変化%</th><th>内容</th></tr></thead><tbody>'
+    table = (
+        '<div class="table-wrap"><table><thead><tr><th>順</th><th>銘柄</th><th>アクション</th><th>買付目安</th><th>売却目安</th><th>価格</th><th>変化%</th><th>内容</th></tr></thead><tbody>'
         + "".join(rows)
-        + "</tbody></table></div></section>"
+        + "</tbody></table></div>"
     )
+    intro = (
+        '<p class="muted">価格を取得できた全銘柄から、買い候補と売り見直しを追加しています。'
+        "はじめはおすすめ順です。売り優先は売り検討を上に、買い優先は買い検討を上に並べます。"
+        "買付目安は PayPay残高 − 月次積立目安の余力から配分。売却目安は売り見直し対象の評価額です。"
+        "投資助言ではありません。</p>"
+        '<div class="filter-bar" role="group" aria-label="アクションで並べ替え">'
+        '<button type="button" class="filter-btn is-on" data-sort-value="score" aria-pressed="true">おすすめ順</button>'
+        '<button type="button" class="filter-btn" data-sort-value="sell" aria-pressed="false">売り優先</button>'
+        '<button type="button" class="filter-btn" data-sort-value="buy" aria-pressed="false">買い優先</button>'
+        "</div>"
+    )
+    return panel("watch", "監視・おすすめ銘柄", "", intro, table, len(watch_actions), fold, None)
 
 
 def subpage_nav(current_href: str) -> str:
@@ -996,6 +1019,7 @@ def index_body(
         '<p class="sub">はじめの5件を表示します。残りはこのセクションで開けます。</p></div>'
         + catalog_block(catalog, PREVIEW_LIMIT, "top-instruments", "instruments.html")
         + holdings_block(holdings, trades, PREVIEW_LIMIT, "top-holdings", "holdings.html")
+        + watch_block(watch_actions, PREVIEW_LIMIT)
         + trades_block(trades, PREVIEW_LIMIT, "top-trades", "trades.html")
         + topics_block(signals, news, market, PREVIEW_LIMIT)
         + signal_rank_block(analyze.rank_trade_signals(holdings, prices, watchlist), PREVIEW_LIMIT)
@@ -1011,7 +1035,6 @@ def index_body(
         + signal_section(signals)
         + accum_section(accums)
         + cashflow_section(cashflow)
-        + watch_section(watch_actions)
     )
 
 

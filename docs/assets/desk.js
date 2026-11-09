@@ -49,6 +49,32 @@
         apply(panel);
       });
     });
+    owned(panel, "[data-sort-value]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var mode = btn.getAttribute("data-sort-value") || "score";
+        var items = owned(panel, ".fold-item");
+        if (items.length) {
+          var parent = items[0].parentElement;
+          items.sort(function (a, b) {
+            function group(action) {
+              if (mode === "sell") return action === "sell" ? 0 : action === "buy" ? 1 : 2;
+              if (mode === "buy") return action === "buy" ? 0 : action === "sell" ? 1 : 2;
+              return 0;
+            }
+            var diff = group(a.getAttribute("data-action") || "") - group(b.getAttribute("data-action") || "");
+            if (diff !== 0) return diff;
+            return Number(a.getAttribute("data-rank") || "0") - Number(b.getAttribute("data-rank") || "0");
+          });
+          items.forEach(function (el) { parent.appendChild(el); });
+        }
+        owned(panel, "[data-sort-value]").forEach(function (other) {
+          var on = other === btn;
+          other.classList.toggle("is-on", on);
+          other.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        apply(panel);
+      });
+    });
     var toggle = owned(panel, "[data-fold-toggle]")[0];
     if (toggle) {
       toggle.addEventListener("click", function () {
