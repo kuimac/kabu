@@ -12,7 +12,8 @@
     var matched = 0;
     owned(panel, ".fold-item").forEach(function (el) {
       var attr = el.getAttribute("data-attr") || "";
-      var ok = filter === "all" || attr === filter;
+      var signals = el.getAttribute("data-signals") || "";
+      var ok = filter === "all" || (signals ? signals.split(/\s+/).indexOf(filter) !== -1 : attr === filter);
       el.classList.toggle("is-hidden", !ok);
       if (!ok) {
         el.classList.remove("is-clipped");

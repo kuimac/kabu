@@ -32,6 +32,27 @@ SIGNAL_WATCH = "要監視"
 SIGNAL_CASH = "入金推奨"
 SIGNAL_WAIT = "見送り"
 SIGNAL_REF = "参考監視"
+SURGE_PCT = 5.0
+RSI_LOW = 30.0
+RSI_HIGH = 70.0
+
+# 判定の優先順。先に一致した種類が売り・買い・見送りを決める。
+REPRESENTATIVE = [
+    ("loss_sell", "含み損売り", "sell"),
+    ("dead", "デッドクロス", "sell"),
+    ("rsi_high", "RSI買われすぎ", "sell"),
+    ("rsi_low", "RSI売られすぎ", "buy"),
+    ("golden", "ゴールデンクロス", "buy"),
+    ("dip", "押し目", "buy"),
+    ("loss_watch", "含み損監視", "watch"),
+    ("surge", "急騰", "wait"),
+]
+KIND_ACTION = {
+    "sell": SIGNAL_SELL,
+    "buy": SIGNAL_BUY,
+    "watch": SIGNAL_WATCH,
+    "wait": SIGNAL_WAIT,
+}
 
 # 監視銘柄のおすすめスコア用カテゴリ
 WATCH_META = {
@@ -70,9 +91,84 @@ def portfolio_flags(holdings: list[dict]) -> dict:
     }
 
 
+def load_technical() -> dict[str, dict]:
+    path = DATA / "technical.csv"
+    if not path.exists():
+        return {}
+    return {row["symbol"]: row for row in read_csv(path) if row.get("symbol")}
+
+
+def _present(value: object) -> float | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    return to_float(text)
+
+
+def representative_tags(change: float, pnl: float | None, tech: dict | None) -> list[tuple[str, str, str]]:
+    """一致した代表的シグナルを、判定優先順で返す。"""
+    found: set[str] = set()
+    if pnl is not None and pnl <= SELL_REVIEW_LOSS_PCT:
+        found.add("loss_sell")
+    elif pnl is not None and pnl <= WATCH_LOSS_PCT:
+        found.add("loss_watch")
+    if tech:
+        sma5 = _present(tech.get("sma5"))
+        sma25 = _present(tech.get("sma25"))
+        prev5 = _present(tech.get("prev_sma5"))
+        prev25 = _present(tech.get("prev_sma25"))
+        rsi = _present(tech.get("rsi14"))
+        if None not in (sma5, sma25, prev5, prev25):
+            if prev5 <= prev25 and sma5 > sma25:
+                found.add("golden")
+            elif prev5 >= prev25 and sma5 < sma25:
+                found.add("dead")
+        if rsi is not None and rsi <= RSI_LOW:
+            found.add("rsi_low")
+        elif rsi is not None and rsi >= RSI_HIGH:
+            found.add("rsi_high")
+    if change <= BUY_DIP_PCT:
+        found.add("dip")
+    elif change >= SURGE_PCT:
+        found.add("surge")
+    return [item for item in REPRESENTATIVE if item[0] in found]
+
+
+def signal_sentence(tags: list[tuple[str, str, str]], change: float, pnl: float | None, tech: dict | None) -> str:
+    ids = {tag[0] for tag in tags}
+    sma5 = _present((tech or {}).get("sma5"))
+    sma25 = _present((tech or {}).get("sma25"))
+    rsi = _present((tech or {}).get("rsi14"))
+    parts: list[str] = []
+    if "golden" in ids and sma5 is not None and sma25 is not None:
+        parts.append(f"ゴールデンクロス（5日線 {sma5:.2f} が25日線 {sma25:.2f} を上抜け）")
+    if "dead" in ids and sma5 is not None and sma25 is not None:
+        parts.append(f"デッドクロス（5日線 {sma5:.2f} が25日線 {sma25:.2f} を下抜け）")
+    if "rsi_low" in ids and rsi is not None:
+        parts.append(f"RSI(14) {rsi:.1f} で売られすぎ")
+    if "rsi_high" in ids and rsi is not None:
+        parts.append(f"RSI(14) {rsi:.1f} で買われすぎ")
+    if "dip" in ids:
+        parts.append(f"前日比 {change:+.1f}% の押し目")
+    if "surge" in ids:
+        parts.append(f"前日比 {change:+.1f}% の急騰")
+    if "loss_sell" in ids and pnl is not None:
+        parts.append(f"含み損 {pnl:+.1f}%")
+    if "loss_watch" in ids and pnl is not None:
+        parts.append(f"含み損 {pnl:+.1f}% で要監視")
+    return "。".join(parts)
+
+
+def decide_action(tags: list[tuple[str, str, str]]) -> str:
+    if not tags:
+        return ""
+    return KIND_ACTION[tags[0][2]]
+
+
 def trade_candidates(holdings: list[dict], prices: list[dict]) -> list[dict]:
-    """価格を取得できた全銘柄から、買いと売りの対象を返す。"""
+    """代表的シグナルが点灯した銘柄だけを返す。"""
     holding_map = {row["symbol"]: row for row in holdings}
+    technical = load_technical()
     candidates: list[dict] = []
     for price in prices:
         symbol = (price.get("symbol") or "").strip()
@@ -82,38 +178,27 @@ def trade_candidates(holdings: list[dict], prices: list[dict]) -> list[dict]:
         change = to_float(price.get("change_pct"))
         name = (holding.get("name") if holding else "") or price.get("name") or symbol
         market = to_float(holding.get("market_value")) if holding else 0.0
-        pnl = None
-        if holding:
-            pnl = pnl_pct(to_float(holding.get("cost_value")), market)
-            if pnl <= SELL_REVIEW_LOSS_PCT:
-                candidates.append(
-                    {
-                        "symbol": symbol,
-                        "name": name,
-                        "side": "sell",
-                        "change": change,
-                        "pnl": pnl,
-                        "market": market,
-                        "price": price.get("price", ""),
-                        "change_pct": price.get("change_pct", ""),
-                    }
-                )
-                continue
-        held_dip = holding is not None and change < 0 and pnl is not None and pnl > SELL_REVIEW_LOSS_PCT
-        listed_dip = holding is None and change <= BUY_DIP_PCT
-        if held_dip or listed_dip:
-            candidates.append(
-                {
-                    "symbol": symbol,
-                    "name": name,
-                    "side": "buy",
-                    "change": change,
-                    "pnl": pnl,
-                    "market": market,
-                    "price": price.get("price", ""),
-                    "change_pct": price.get("change_pct", ""),
-                }
-            )
+        pnl = pnl_pct(to_float(holding.get("cost_value")), market) if holding else None
+        tech = technical.get(symbol)
+        tags = representative_tags(change, pnl, tech)
+        if not tags:
+            continue
+        kind = tags[0][2]
+        candidates.append(
+            {
+                "symbol": symbol,
+                "name": name,
+                "side": "sell" if kind == "sell" else "buy" if kind == "buy" else "other",
+                "action": decide_action(tags),
+                "signals": " ".join(tag[1] for tag in tags),
+                "detail": signal_sentence(tags, change, pnl, tech),
+                "change": change,
+                "pnl": pnl,
+                "market": market,
+                "price": price.get("price", ""),
+                "change_pct": price.get("change_pct", ""),
+            }
+        )
     return candidates
 
 
@@ -209,41 +294,60 @@ def build_watch_actions(
                 "sell_yen": str(sell_yen),
                 "price": p.get("price", ""),
                 "change_pct": p.get("change_pct", ""),
+                "signals": "",
                 "action_detail": action_detail,
                 "reason": " / ".join(r for r in reasons if r),
                 "_score": score,
             }
         )
 
+    technical = load_technical()
+    holding_map = {row["symbol"]: row for row in holdings}
+    for row in scored:
+        holding = holding_map.get(row["symbol"])
+        change = to_float(row.get("change_pct"))
+        market = to_float(holding.get("market_value")) if holding else 0.0
+        pnl = pnl_pct(to_float(holding.get("cost_value")), market) if holding else None
+        tech = technical.get(row["symbol"])
+        tags = representative_tags(change, pnl, tech)
+        if not tags:
+            continue
+        row["signals"] = " ".join(tag[1] for tag in tags)
+        row["action"] = decide_action(tags)
+        row["reason"] = "代表的シグナル: " + "、".join(tag[1] for tag in tags)
+        row["action_detail"] = signal_sentence(tags, change, pnl, tech)
+        if row["action"] == SIGNAL_SELL:
+            row["buy_yen"] = "0"
+            row["sell_yen"] = str(int(round(market))) if market else "0"
+        elif row["action"] != SIGNAL_BUY:
+            row["buy_yen"] = "0"
+            row["sell_yen"] = "0"
+
     listed = {row["symbol"] for row in scored}
     for candidate in trade_candidates(holdings, prices):
         if candidate["symbol"] in listed:
             continue
-        if candidate["side"] == "sell":
-            score = 50.0 + min(30.0, -candidate["pnl"] * 0.5)
-            action = SIGNAL_SELL
+        action = candidate["action"]
+        detail = candidate["detail"]
+        if action == SIGNAL_SELL:
+            loss = -(candidate["pnl"] or 0.0)
+            score = 80.0 + min(20.0, loss * 0.3)
             buy_yen = 0
-            sell_yen = int(round(candidate["market"]))
-            action_detail = (
-                f"含み損 {candidate['pnl']:+.1f}%。評価額 {sell_yen:,}円が売り見直しの対象。"
-                "売却はPayPayで手動。"
-            )
-            reason = "取得できた全銘柄の分析。含み損が-20%以下のため売り見直し。"
-        else:
-            score = 50.0 + max(-candidate["change"], 0) * 4
-            action = SIGNAL_BUY
+            sell_yen = int(round(candidate["market"])) if candidate["market"] else 0
+        elif action == SIGNAL_BUY:
+            score = 70.0 + max(-candidate["change"], 0) * 2
             sell_yen = 0
             if surplus < 5000:
                 buy_yen = 0
-                action_detail = (
-                    f"前日比 {candidate['change']:+.1f}% の下落を買い候補にした。"
-                    f"買い余力不足。{reserve_note}。"
-                )
+                detail += f"。買い余力不足。{reserve_note}"
             else:
                 raw = surplus * (0.40 if candidate["change"] <= -8 else 0.25)
                 buy_yen = min(30000, max(5000, round_yen_1000(raw)))
-                action_detail = f"前日比 {candidate['change']:+.1f}% の下落を買い候補にした。"
-            reason = "取得できた全銘柄の分析。前日比の下落を買い候補にした。"
+        else:
+            score = 40.0
+            buy_yen = 0
+            sell_yen = 0
+        reason = "代表的シグナル: " + candidate["signals"].replace(" ", "、")
         scored.append(
             {
                 "as_of": as_of,
@@ -256,7 +360,8 @@ def build_watch_actions(
                 "sell_yen": str(sell_yen),
                 "price": candidate["price"],
                 "change_pct": candidate["change_pct"],
-                "action_detail": action_detail,
+                "signals": candidate["signals"],
+                "action_detail": detail,
                 "reason": reason,
                 "_score": score,
             }
@@ -273,14 +378,12 @@ def build_watch_actions(
             continue
         if remaining < 5000:
             row["buy_yen"] = "0"
-            row["action"] = SIGNAL_HOLD
-            row["action_detail"] = f"上位候補へ余力を優先配分済み。{reserve_note}"
+            row["action_detail"] = f"{row.get('action_detail') or ''} 買い余力不足。{reserve_note}".strip()
             continue
         allocated = min(buy, round_yen_1000(remaining))
         if allocated < 5000:
             row["buy_yen"] = "0"
-            row["action"] = SIGNAL_HOLD
-            row["action_detail"] = f"余力残り僅少のため見送り。{reserve_note}"
+            row["action_detail"] = f"{row.get('action_detail') or ''} 余力残り僅少。{reserve_note}".strip()
             continue
         row["buy_yen"] = str(allocated)
         row["action_detail"] = (
@@ -647,6 +750,7 @@ def main() -> int:
             "sell_yen",
             "price",
             "change_pct",
+            "signals",
             "action_detail",
             "reason",
         ],

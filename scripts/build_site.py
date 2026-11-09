@@ -879,12 +879,20 @@ def market_section(_market: list[dict], holdings: list[dict], accums: list[dict]
 
 def signal_section(signals: list[dict]) -> str:
     rows = []
+    labels: list[str] = []
+    seen: set[str] = set()
     for row in signals:
+        label = row.get("signal") or ""
+        if label and label not in seen:
+            seen.add(label)
+            labels.append(label)
         rows.append(
-            '<tr class="prio-'
+            '<tr class="fold-item prio-'
             + esc(row.get("priority"))
+            + '" data-signals="'
+            + esc(label)
             + '"><td><span class="badge">'
-            + esc(row.get("signal"))
+            + esc(label)
             + "</span></td><td>"
             + esc(row.get("name"))
             + "</td><td>"
@@ -894,13 +902,20 @@ def signal_section(signals: list[dict]) -> str:
             + "</td></tr>"
         )
     nav = menubar("シグナルのメニュー", [("#signals", "シグナル"), ("holdings.html", "保有")])
+    table = (
+        '<div class="table-wrap"><table><thead><tr><th>シグナル</th><th>対象</th><th>理由</th><th>推奨アクション</th></tr></thead><tbody>'
+        + "".join(rows)
+        + "</tbody></table></div>"
+    )
     return (
         '<section id="signals"><h2>売買シグナル</h2>'
         + nav
-        + '<p class="muted">自動発注はしません。PayPay証券で手動執行してください。</p>'
-        + '<div class="table-wrap"><table><thead><tr><th>シグナル</th><th>対象</th><th>理由</th><th>推奨アクション</th></tr></thead><tbody>'
-        + "".join(rows)
-        + "</tbody></table></div></section>"
+        + '<div data-panel data-fold="0" data-filter="all">'
+        + '<p class="muted">自動発注はしません。PayPay証券で手動執行してください。シグナルごとに絞り込めます。</p>'
+        + filter_bar(labels)
+        + '<p class="filter-empty" hidden>該当する銘柄はありません。</p>'
+        + table
+        + "</div></section>"
     )
 
 
@@ -987,13 +1002,17 @@ def watch_block(watch_actions: list[dict], fold: int) -> str:
             + esc(row.get("rank") or str(index + 1))
             + '" data-action="'
             + action_kind(action)
+            + '" data-signals="'
+            + esc(row.get("signals") or "")
             + '"><td class="num">'
             + esc(row.get("rank"))
             + "</td><td>"
             + esc(row.get("name"))
             + '</td><td><span class="badge">'
             + esc(action)
-            + '</span></td><td class="num">'
+            + '</span></td><td>'
+            + esc((row.get("signals") or "").replace(" ", "、") or "—")
+            + '</td><td class="num">'
             + (yen(buy) if buy > 0 else "—")
             + '</td><td class="num">'
             + (yen(sell) if sell > 0 else "—")
@@ -1008,15 +1027,20 @@ def watch_block(watch_actions: list[dict], fold: int) -> str:
             + "</td></tr>"
         )
     table = (
-        '<div class="table-wrap"><table><thead><tr><th>順</th><th>銘柄</th><th>アクション</th><th>買付目安</th><th>売却目安</th><th>価格</th><th>変化%</th><th>内容</th></tr></thead><tbody>'
+        '<div class="table-wrap"><table><thead><tr><th>順</th><th>銘柄</th><th>アクション</th><th>シグナル</th><th>買付目安</th><th>売却目安</th><th>価格</th><th>変化%</th><th>内容</th></tr></thead><tbody>'
         + "".join(rows)
         + "</tbody></table></div>"
     )
+    present = set()
+    for row in watch_actions:
+        for label in (row.get("signals") or "").split():
+            present.add(label)
+    signal_labels = [label for _key, label, _kind in analyze.REPRESENTATIVE if label in present]
     intro = (
-        '<p class="muted">価格を取得できた全銘柄から、買い候補と売り見直しを追加しています。'
-        "未保有は前日比が-5%以下のときだけ買い候補にします。"
-        "はじめはおすすめ順です。売り優先は売り検討を上に、買い優先は買い検討を上に並べます。"
-        "買付目安は PayPay残高 − 月次積立目安の余力から配分。売却目安は売り見直し対象の評価額です。"
+        '<p class="muted">売り買いは代表的なシグナルで判断しています。'
+        "ゴールデンクロスとデッドクロスは5日線と25日線の交差、RSIは14日で30以下・70以上、"
+        "押し目は前日比-5%以下、急騰は+5%以上、含み損は保有の-20%以下と-10%以下です。"
+        "一致したシグナルで絞り込めます。買付目安は余力からの配分、売却目安は売り見直し対象の評価額です。"
         "投資助言ではありません。</p>"
         '<div class="filter-bar" role="group" aria-label="アクションで並べ替え">'
         '<button type="button" class="filter-btn is-on" data-sort-value="score" aria-pressed="true">おすすめ順</button>'
@@ -1024,7 +1048,7 @@ def watch_block(watch_actions: list[dict], fold: int) -> str:
         '<button type="button" class="filter-btn" data-sort-value="buy" aria-pressed="false">買い優先</button>'
         "</div>"
     )
-    return panel("watch", "監視・おすすめ銘柄", "", intro, table, len(watch_actions), fold, None)
+    return panel("watch", "監視・おすすめ銘柄", "", intro, table, len(watch_actions), fold, signal_labels)
 
 
 def subpage_nav(current_href: str) -> str:
