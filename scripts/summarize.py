@@ -71,13 +71,15 @@ def main() -> None:
     lines.append("")
 
     hot = [row for row in signals if row.get("priority") in {"high", "medium"}]
-    lines.append("### シグナル（high / medium）")
+    priority_ja = {"high": "高", "medium": "中", "low": "低"}
+    lines.append("### シグナル（高 / 中）")
     if not hot:
         lines.append("- なし")
     else:
         for row in hot:
+            prio = priority_ja.get(row.get("priority", ""), row.get("priority"))
             lines.append(
-                f"- [{row.get('priority')}] {row.get('name')}: {row.get('signal')} — {row.get('reason')}"
+                f"- [{prio}] {row.get('name')}: {row.get('signal')} — {row.get('reason')}"
             )
     lines.append("")
 

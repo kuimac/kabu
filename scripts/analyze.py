@@ -24,6 +24,15 @@ WATCH_LOSS_PCT = -10.0
 SELL_REVIEW_LOSS_PCT = -20.0
 BUY_DIP_PCT = -5.0  # 監視銘柄の短期下落で検討
 
+# 表示用シグナル／アクション（日本語）
+SIGNAL_BUY = "買い検討"
+SIGNAL_SELL = "売り検討"
+SIGNAL_HOLD = "保有継続"
+SIGNAL_WATCH = "要監視"
+SIGNAL_CASH = "入金推奨"
+SIGNAL_WAIT = "見送り"
+SIGNAL_REF = "参考監視"
+
 # 監視銘柄のおすすめスコア用カテゴリ
 WATCH_META = {
     "1306": {"kind": "japan_etf", "paypay_tradable": True, "diversify": "japan"},
@@ -108,17 +117,17 @@ def build_watch_actions(
         tradable = meta.get("paypay_tradable", True)
         if not tradable:
             score -= 25
-            action = "WATCH_REF"
+            action = SIGNAL_REF
             buy_yen = 0
             sell_yen = 0
             action_detail = "参考監視のみ（米国ETF。PayPay NISAでの直接購入は取扱確認）。相当なら既存のS&P/オルカン積立で代替。"
         elif surplus < 5000:
-            action = "HOLD"
+            action = SIGNAL_HOLD
             buy_yen = 0
             sell_yen = 0
             action_detail = f"買い余力不足。{reserve_note}。必要なら銀行→PayPayへ入金後に再評価。"
         elif change_pct <= BUY_DIP_PCT:
-            action = "CONSIDER_BUY"
+            action = SIGNAL_BUY
             # 余力の25〜40%を目安（下限5,000・上限30,000）
             raw = surplus * (0.40 if change_pct <= -8 else 0.25)
             buy_yen = min(30000, max(5000, round_yen_1000(raw)))
@@ -126,16 +135,16 @@ def build_watch_actions(
             action_detail = f"目安 {buy_yen:,}円の買い検討（押し目 {change_pct:+.1f}%）。市場時間中なら即時。"
             score += 12
         elif change_pct >= 3.0:
-            action = "WAIT"
+            action = SIGNAL_WAIT
             buy_yen = 0
             sell_yen = 0
             action_detail = f"短期上昇中（{change_pct:+.1f}%）。追っかけ買いは見送り、押し目待ち。"
             score -= 8
         else:
-            action = "CONSIDER_BUY"
+            action = SIGNAL_BUY
             buy_yen = min(20000, max(5000, round_yen_1000(surplus * 0.15))) if surplus >= 5000 else 0
             if buy_yen == 0:
-                action = "HOLD"
+                action = SIGNAL_HOLD
                 action_detail = f"様子見。{reserve_note}"
             else:
                 action_detail = f"目安 {buy_yen:,}円の少額買い検討（分散・積立の補完）。急がなくてよい。"
@@ -165,18 +174,18 @@ def build_watch_actions(
     remaining = surplus
     for row in scored:
         buy = int(to_float(row["buy_yen"]))
-        if row["action"] not in {"CONSIDER_BUY"} or buy <= 0:
+        if row["action"] not in {SIGNAL_BUY} or buy <= 0:
             row["buy_yen"] = "0"
             continue
         if remaining < 5000:
             row["buy_yen"] = "0"
-            row["action"] = "HOLD"
+            row["action"] = SIGNAL_HOLD
             row["action_detail"] = f"上位候補へ余力を優先配分済み。{reserve_note}"
             continue
         allocated = min(buy, round_yen_1000(remaining))
         if allocated < 5000:
             row["buy_yen"] = "0"
-            row["action"] = "HOLD"
+            row["action"] = SIGNAL_HOLD
             row["action_detail"] = f"余力残り僅少のため見送り。{reserve_note}"
             continue
         row["buy_yen"] = str(allocated)
@@ -210,7 +219,7 @@ def build_signals(holdings: list[dict], prices: list[dict], watchlist: list[dict
                     "as_of": as_of,
                     "symbol": symbol,
                     "name": name,
-                    "signal": "CONSIDER_SELL",
+                    "signal": SIGNAL_SELL,
                     "priority": "high",
                     "reason": f"含み損 {pct:.1f}%（閾値 {SELL_REVIEW_LOSS_PCT:.0f}%以下）。方針見直し候補。",
                     "suggested_action": "PayPay証券で一部売却を検討。売却代金は2〜3営業日後にPayPay口座へ。",
@@ -222,7 +231,7 @@ def build_signals(holdings: list[dict], prices: list[dict], watchlist: list[dict
                     "as_of": as_of,
                     "symbol": symbol,
                     "name": name,
-                    "signal": "WATCH",
+                    "signal": SIGNAL_WATCH,
                     "priority": "medium",
                     "reason": f"含み損 {pct:.1f}%。積立継続か配分見直しを確認。",
                     "suggested_action": "積立設定と比率を確認。慌てて売却しない。",
@@ -234,7 +243,7 @@ def build_signals(holdings: list[dict], prices: list[dict], watchlist: list[dict
                     "as_of": as_of,
                     "symbol": symbol,
                     "name": name,
-                    "signal": "HOLD",
+                    "signal": SIGNAL_HOLD,
                     "priority": "low",
                     "reason": f"含み益 {pct:.1f}%。利確より長期保有が基本方針。",
                     "suggested_action": "現状維持。必要なら一部リバランスのみ検討。",
@@ -246,7 +255,7 @@ def build_signals(holdings: list[dict], prices: list[dict], watchlist: list[dict
                     "as_of": as_of,
                     "symbol": symbol,
                     "name": name,
-                    "signal": "HOLD",
+                    "signal": SIGNAL_HOLD,
                     "priority": "low",
                     "reason": f"損益 {pct:+.1f}%。特別なアクションなし。",
                     "suggested_action": "積立を継続。",
@@ -265,7 +274,7 @@ def build_signals(holdings: list[dict], prices: list[dict], watchlist: list[dict
                     "as_of": as_of,
                     "symbol": w["symbol"],
                     "name": w["name"],
-                    "signal": "CONSIDER_BUY",
+                    "signal": SIGNAL_BUY,
                     "priority": "medium",
                     "reason": f"監視銘柄が前日比 {change_pct:.1f}%。押し目検討。",
                     "suggested_action": "監視おすすめ欄の金額目安を参照。PayPayで手動注文。",
@@ -280,7 +289,7 @@ def build_signals(holdings: list[dict], prices: list[dict], watchlist: list[dict
                 "as_of": as_of,
                 "symbol": "CASH",
                 "name": "PayPay口座残高",
-                "signal": "CASH_TOPUP",
+                "signal": SIGNAL_CASH,
                 "priority": "high",
                 "reason": f"残高 {cash:,.0f}円 < 月次積立目安 {monthly_need:,.0f}円（不足 {shortage:,.0f}円）。",
                 "suggested_action": "積立日前に銀行からPayPay口座へ入金（即時）。",
@@ -292,7 +301,7 @@ def build_signals(holdings: list[dict], prices: list[dict], watchlist: list[dict
                 "as_of": as_of,
                 "symbol": "CASH",
                 "name": "PayPay口座残高",
-                "signal": "HOLD",
+                "signal": SIGNAL_HOLD,
                 "priority": "low",
                 "reason": f"残高 {cash:,.0f}円で月次積立目安 {monthly_need:,.0f}円をカバー。",
                 "suggested_action": "追加入金は任意。",
@@ -307,7 +316,7 @@ def build_signals(holdings: list[dict], prices: list[dict], watchlist: list[dict
                 "as_of": as_of,
                 "symbol": "slim_sp500",
                 "name": "積立フロー集中",
-                "signal": "WATCH",
+                "signal": SIGNAL_WATCH,
                 "priority": "medium",
                 "reason": f"S&P500積立が月 {sp_monthly:,}円とフローの約 {sp_monthly/monthly_need*100:.0f}%を占める。",
                 "suggested_action": "オルカン/先進国とのバランスを定期確認。",
@@ -378,7 +387,7 @@ def build_cashflow(accums: list[dict], signals: list[dict], start: date) -> list
 
     # 売却検討がある場合の着金シミュレーション（仮想・今日売却想定）
     for s in signals:
-        if s["signal"] != "CONSIDER_SELL":
+        if s["signal"] != SIGNAL_SELL:
             continue
         sell_day = start if is_business_day(start) else add_business_days(start, 1)
         paypay_credit = add_business_days(sell_day, 3)  # 2〜3営業日の保守側
