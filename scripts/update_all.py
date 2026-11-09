@@ -10,7 +10,10 @@ SCRIPTS = [
     "fetch_market.py",
     "fetch_prices.py",
     "fetch_news.py",
+    "fetch_fundamentals.py",
+    "technical.py",
     "analyze.py",
+    "rank_ideas.py",
     "build_site.py",
 ]
 

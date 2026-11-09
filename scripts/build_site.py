@@ -9,6 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import analyze
+import rank_ideas
 from common import DATA, DOCS, ensure_data_dir, now_jst, read_csv, to_float
 
 PREVIEW_LIMIT = 5
@@ -23,6 +24,7 @@ SUBPAGES = [
     ("cashflow.html", "資金スケジュール", "cashflow"),
 ]
 INDEX_SECTIONS = [
+    ("#top-ideas", "売り買い候補"),
     ("#top-topics", "トピック"),
     ("#watch", "監視銘柄"),
     ("#top-signal-rank", "強い売買"),
@@ -1122,12 +1124,14 @@ def index_body(
     watch_actions: list[dict],
     prices: list[dict],
     watchlist: list[dict],
+    ideas: list[dict],
 ) -> str:
     page_nav = menubar("トップのセクション", INDEX_SECTIONS)
     top = (
         '<section class="hero-topics" id="top">'
         '<div class="topics-header"><p class="eyebrow">Top</p><h2>トピック・監視・売買</h2>'
         '<p class="sub">はじめの5件を表示します。残りはこのセクションで開けます。</p></div>'
+        + ideas_block(ideas, PREVIEW_LIMIT)
         + topics_block(signals, news, market, PREVIEW_LIMIT)
         + watch_block(watch_actions, PREVIEW_LIMIT)
         + signal_rank_block(analyze.rank_trade_signals(holdings, prices, watchlist), PREVIEW_LIMIT)
@@ -1298,7 +1302,172 @@ def quotes_block(rows: list[dict], history_index: dict[str, dict] | None = None)
     return panel("", "取得できた銘柄", "", intro, table, len(rows), 0, ordered_attrs(rows))
 
 
-def symbol_page(row: dict, history: list[dict], prefix: str) -> tuple[str, str]:
+def _optional_number(raw: object) -> float | None:
+    try:
+        number = float(raw)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+    if number != number:
+        return None
+    return number
+
+
+def _fact_list(pairs: list[tuple[str, str]]) -> str:
+    shown = [(label, value) for label, value in pairs if value]
+    if not shown:
+        return ""
+    body = "".join(f"<div><dt>{esc(label)}</dt><dd>{esc(value)}</dd></div>" for label, value in shown)
+    return f'<dl class="facts">{body}</dl>'
+
+
+def _amount(raw: object) -> str:
+    number = _optional_number(raw)
+    if number is None:
+        return ""
+    return f"{number:,.2f}"
+
+
+def _multiple(raw: object, digits: int) -> str:
+    number = _optional_number(raw)
+    if number is None:
+        return ""
+    return f"{number:.{digits}f}倍"
+
+
+def _market_cap(raw: object) -> str:
+    number = _optional_number(raw)
+    if number is None or number <= 0:
+        return ""
+    oku = number / 100_000_000
+    if oku >= 1:
+        return f"{oku:,.0f}億円"
+    return f"{number:,.0f}円"
+
+
+def _dividend(raw: object) -> str:
+    number = _optional_number(raw)
+    if number is None or number < 0:
+        return ""
+    return f"{number * 100:.2f}%"
+
+
+def _week_range(row: dict) -> str:
+    price = _optional_number(row.get("price"))
+    high = _optional_number(row.get("week52_high"))
+    low = _optional_number(row.get("week52_low"))
+    if price is None or high is None or low is None:
+        return ""
+    if low <= 0 or high < low or low < price * 0.2 or high < price * 0.5:
+        return ""
+    return f"{low:,.2f} – {high:,.2f}"
+
+
+def _rule_text() -> str:
+    return (
+        "テクニカルは今回取得した終値の5日線・25日線・RSI(14)・前日比です。"
+        f"デッドクロスとRSI{analyze.RSI_HIGH:.0f}以上は売り、"
+        f"RSI{analyze.RSI_LOW:.0f}以下・ゴールデンクロス・前日比{analyze.BUY_DIP_PCT:.0f}%以下は買いです。"
+        f"ファンダメンタルは取得できた実績だけを使い、PER{rank_ideas.PE_CHEAP:.0f}倍以下かPBR{rank_ideas.PBR_CHEAP:.0f}倍以下で買い、"
+        f"PER{rank_ideas.PE_RICH:.0f}倍以上かPBR{rank_ideas.PBR_RICH:.0f}倍以上、またはEPSの赤字で売りです。"
+        "終値が横ばいで移動平均も重なっているときは、RSIが極端でも売り買いの決定には使いません。"
+        "返ってこなかった項目は出していません。投資助言ではありません。"
+    )
+
+
+def analysis_html(row: dict | None) -> str:
+    rules = f'<p class="muted">{_rule_text()}</p>'
+    if not row:
+        return (
+            '<div class="chart-card"><h3>テクニカル</h3>'
+            + rules
+            + "<p>今回の取得ではこの銘柄の終値を計算できませんでした。</p></div>"
+            '<div class="chart-card"><h3>ファンダメンタル</h3>'
+            "<p>今回の取得ではPER・PBR・EPSなどは返ってきませんでした。</p></div>"
+        )
+    sma5 = _optional_number(row.get("sma5"))
+    sma25 = _optional_number(row.get("sma25"))
+    rsi = _optional_number(row.get("rsi14"))
+    tech_facts = _fact_list(
+        [
+            ("5日線", f"{sma5:.2f}" if sma5 is not None else ""),
+            ("25日線", f"{sma25:.2f}" if sma25 is not None else ""),
+            ("RSI(14)", f"{rsi:.1f}" if rsi is not None else ""),
+            ("終値の本数", row.get("bars") or ""),
+            ("今回の価格", row.get("price") or ""),
+            ("前日比", f"{row['change_pct']}%" if row.get("change_pct") else ""),
+        ]
+    )
+    tech_body = tech_facts or "<p>今回の取得では移動平均とRSIを計算できませんでした。</p>"
+    action = row.get("action") or "材料不足"
+    decision = row.get("decision") or "買い・売りを決める材料は今回の取得になかった"
+    tech = (
+        '<div class="chart-card"><h3>テクニカル</h3>'
+        + rules
+        + tech_body
+        + f'<p>判定 <span class="badge">{esc(action)}</span></p>'
+        + f"<p>{esc(decision)}</p></div>"
+    )
+    fund_facts = _fact_list(
+        [
+            ("PER（実績）", _multiple(row.get("trailing_pe"), 1)),
+            ("PER（予想）", _multiple(row.get("forward_pe"), 1)),
+            ("PBR", _multiple(row.get("price_to_book"), 2)),
+            ("EPS（実績）", _amount(row.get("eps"))),
+            ("EPS（予想）", _amount(row.get("eps_forward"))),
+            ("時価総額", _market_cap(row.get("market_cap"))),
+            ("配当利回り", _dividend(row.get("div_yield"))),
+            ("1株純資産", _amount(row.get("book_value"))),
+            ("52週レンジ", _week_range(row)),
+        ]
+    )
+    if fund_facts:
+        fund_body = (
+            fund_facts
+            + '<p class="muted">予想PER・予想EPS・52週レンジは取得できたので出しています。判定には使っていません。</p>'
+        )
+    else:
+        fund_body = "<p>今回の取得ではPER・PBR・EPSなどは返ってきませんでした。</p>"
+    return tech + '<div class="chart-card"><h3>ファンダメンタル</h3>' + fund_body + "</div>"
+
+
+def ideas_block(rows: list[dict], fold: int) -> str:
+    picked = [row for row in rows if str(row.get("rank") or "").strip()]
+    picked.sort(key=lambda row: int(row["rank"]))
+    cards: list[str] = []
+    for index, row in enumerate(picked):
+        change = to_float(row.get("change_pct"))
+        if row.get("change_pct"):
+            change_html = f'<span class="{pnl_class(change)}">{esc(row.get("change_pct"))}%</span>'
+        else:
+            change_html = "—"
+        cards.append(
+            '<article class="'
+            + item_class(index, fold)
+            + ' idea-card"><p class="topic-tag">'
+            + esc(row.get("action"))
+            + '</p><h3><a href="'
+            + esc(symbol_href(row.get("symbol") or ""))
+            + '">'
+            + esc(row.get("name"))
+            + '</a></h3><p class="idea-quote">'
+            + esc(row.get("price") or "—")
+            + " "
+            + change_html
+            + "</p><p>"
+            + esc(row.get("decision"))
+            + "</p></article>"
+        )
+    intro = (
+        '<p class="muted">取扱銘柄を今回取得した終値とファンダメンタルで見て、'
+        "買いまたは売りが決まったもののうち強い30件です。はじめの5件を開き、残りは折りたたみます。"
+        + _rule_text()
+        + "テクニカルが点いたときはそちらが売り買いを決め、ファンダメンタルは強さを足し引きするだけです。</p>"
+    )
+    inner = '<div class="idea-list">' + "".join(cards) + "</div>" if cards else "<p>今回の取得では買い・売りが決まった銘柄がありません。</p>"
+    return panel("top-ideas", "売り買い候補", "", intro, inner, len(cards), fold, None)
+
+
+def symbol_page(row: dict, history: list[dict], prefix: str, analysis: dict | None = None) -> tuple[str, str]:
     quote = row["quote"]
     points = history_points(row["symbol"], history, quote)
     fetched, stamp = format_fetched_at(quote.get("as_of") or "")
@@ -1378,6 +1547,7 @@ def symbol_page(row: dict, history: list[dict], prefix: str) -> tuple[str, str]:
         + esc(fetched)
         + "</time></p>"
         + summary_html
+        + analysis_html(analysis)
         + '<div class="chart-card"><h3>'
         + ("過去5年の終値" if summary else "記録した価格")
         + "</h3>"
@@ -1412,6 +1582,8 @@ def main() -> int:
     history = read_csv(DATA / "prices_history.csv")
     trades = read_csv(DATA / "trades.csv")
     watch_actions = read_csv(DATA / "watch_actions.csv")
+    analysis_rows = read_csv(DATA / "symbol_analysis.csv")
+    analysis = {row["symbol"]: row for row in analysis_rows if row.get("symbol")}
     universe = read_csv(DATA / "universe.csv")
     quote_universe = read_csv(DATA / "quote_universe.csv")
     catalog = build_catalog(holdings, watchlist, prices, universe, quote_universe)
@@ -1435,6 +1607,7 @@ def main() -> int:
                 watch_actions,
                 prices,
                 watchlist,
+                analysis_rows,
             ),
             updated,
             chart_json,
@@ -1491,7 +1664,7 @@ def main() -> int:
     symbol_dir.mkdir(exist_ok=True)
     written: set[str] = set()
     for row in quote_rows:
-        body, chart_json = symbol_page(row, history, "../")
+        body, chart_json = symbol_page(row, history, "../", analysis.get(row["symbol"]))
         safe = symbol_href(row["symbol"]).rsplit("/", 1)[-1]
         path = symbol_dir / safe
         path.write_text(
