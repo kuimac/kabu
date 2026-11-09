@@ -1,0 +1,10 @@
+symbol,name,asset_type,association_code,yahoo_ticker,reason
+n225,日経平均,index,,^N225,市場の比較指数
+nikkei225,NEXT FUNDS 日経225連動型上場投信,etf,,1321.T,日経平均に連動する国内ETF
+ishares_sp500,iシェアーズ S&P 500 米国株 ETF,etf,,1655.T,S&P500の国内ETF
+maxis_ndx,MAXISナスダック100上場投信,etf,,2631.T,NASDAQ100の国内ETF
+reit,NEXT FUNDS 東証REIT指数連動型上場投信,etf,,1343.T,不動産の比較
+nifty,NEXT FUNDS インド株式指数・Nifty 50連動型上場投信,etf,,1678.T,インド株の比較
+vt,バンガード・トータル・ワールド・ストックETF,etf,,VT,全世界株の米国ETF
+voo,バンガード・S&P500 ETF,etf,,VOO,S&P500の米国ETF
+gld,SPDRゴールド・シェア,etf,,GLD,金の米国ETF

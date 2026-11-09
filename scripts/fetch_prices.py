@@ -51,6 +51,13 @@ def fetch_mufg_nav(association_code: str) -> dict | None:
         return None
 
 
+def price_currency(ticker: str) -> str:
+    ticker = ticker or ""
+    if ticker.endswith(".T") or ticker.startswith("^"):
+        return "JPY"
+    return "USD"
+
+
 def fetch_yahoo_price(ticker: str) -> dict | None:
     if not ticker:
         return None
@@ -156,6 +163,20 @@ def main() -> int:
                 "yahoo_ticker": w.get("yahoo_ticker", ""),
             }
         )
+    seen = {row["symbol"] for row in targets}
+    for extra in read_csv(DATA / "universe.csv"):
+        if extra.get("symbol") in seen:
+            continue
+        seen.add(extra.get("symbol"))
+        targets.append(
+            {
+                "symbol": extra["symbol"],
+                "name": extra["name"],
+                "asset_type": extra.get("asset_type", ""),
+                "association_code": extra.get("association_code", ""),
+                "yahoo_ticker": extra.get("yahoo_ticker", ""),
+            }
+        )
 
     history_rows = []
     for t in targets:
@@ -191,7 +212,7 @@ def main() -> int:
             print(f"WARN no price for {symbol}")
             continue
 
-        currency = "USD" if t.get("yahoo_ticker") == "NVDA" else "JPY"
+        currency = price_currency(t.get("yahoo_ticker") or "")
         row = {
             "symbol": symbol,
             "name": t["name"],

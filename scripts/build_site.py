@@ -12,7 +12,7 @@ import analyze
 from common import DATA, DOCS, ensure_data_dir, now_jst, read_csv, to_float
 
 PREVIEW_LIMIT = 5
-ATTR_ORDER = ["国内投信", "国内株", "米国株", "国内ETF", "米国ETF"]
+ATTR_ORDER = ["国内投信", "国内株", "米国株", "国内ETF", "米国ETF", "指数"]
 BUY_KINDS = {"買付", "買い", "buy"}
 SUBPAGES = [
     ("quotes.html", "取得銘柄", "quotes"),
@@ -171,6 +171,8 @@ def attribute_of(asset_type: str, ticker: str) -> str:
         return "国内ETF" if ticker.endswith(".T") else "米国ETF"
     if asset_type == "stock":
         return "国内株" if ticker.endswith(".T") else "米国株"
+    if asset_type == "index":
+        return "指数"
     return "その他"
 
 
@@ -197,7 +199,12 @@ def ordered_attrs(rows: list[dict]) -> list[str]:
     return ordered
 
 
-def build_catalog(holdings: list[dict], watchlist: list[dict], prices: list[dict]) -> list[dict]:
+def build_catalog(
+    holdings: list[dict],
+    watchlist: list[dict],
+    prices: list[dict],
+    universe: list[dict] | None = None,
+) -> list[dict]:
     names = {row["symbol"]: row.get("name", "") for row in prices}
     seen: set[str] = set()
     rows: list[dict] = []
@@ -222,6 +229,8 @@ def build_catalog(holdings: list[dict], watchlist: list[dict], prices: list[dict
         add(row, "保有")
     for row in watchlist:
         add(row, "監視")
+    for row in universe or []:
+        add(row, "比較")
     for row in prices:
         add(row, "価格のみ")
     return rows
@@ -1220,7 +1229,8 @@ def main() -> int:
     history = read_csv(DATA / "prices_history.csv")
     trades = read_csv(DATA / "trades.csv")
     watch_actions = read_csv(DATA / "watch_actions.csv")
-    catalog = build_catalog(holdings, watchlist, prices)
+    universe = read_csv(DATA / "universe.csv")
+    catalog = build_catalog(holdings, watchlist, prices, universe)
     chart_json = json.dumps(build_chart_payload(holdings, history), ensure_ascii=False)
     updated = now_jst().strftime("%Y-%m-%d %H:%M JST")
     pages = {
