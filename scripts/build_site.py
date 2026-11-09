@@ -139,15 +139,45 @@ def render_html(
             f"<td class='num'>{yen(to_float(a.get('monthly_estimate_yen')))}</td></tr>"
         )
 
+    watch_actions = read_csv(DATA / "watch_actions.csv")
+    if not watch_actions:
+        # フォールバック（未生成時）
+        price_map = {p["symbol"]: p for p in prices}
+        for i, w in enumerate(watchlist, start=1):
+            p = price_map.get(w["symbol"], {})
+            watch_actions.append(
+                {
+                    "rank": str(i),
+                    "name": w["name"],
+                    "action": "—",
+                    "buy_yen": "",
+                    "sell_yen": "",
+                    "price": p.get("price", "—"),
+                    "change_pct": p.get("change_pct", "—"),
+                    "action_detail": w.get("reason", ""),
+                    "reason": w.get("reason", ""),
+                }
+            )
+
     watch_rows = []
-    price_map = {p["symbol"]: p for p in prices}
-    for w in watchlist:
-        p = price_map.get(w["symbol"], {})
-        ch = to_float(p.get("change_pct"))
+    for w in watch_actions:
+        ch = to_float(w.get("change_pct"))
         cls = "neg" if ch < 0 else "pos" if ch > 0 else ""
+        buy = to_float(w.get("buy_yen"))
+        sell = to_float(w.get("sell_yen"))
+        buy_txt = yen(buy) if buy > 0 else "—"
+        sell_txt = yen(sell) if sell > 0 else "—"
         watch_rows.append(
-            f"<tr><td>{w['name']}</td><td class='num'>{p.get('price','—')}</td>"
-            f"<td class='num {cls}'>{p.get('change_pct','—')}</td><td>{w.get('reason','')}</td></tr>"
+            f"<tr>"
+            f"<td class='num'>{w.get('rank','')}</td>"
+            f"<td>{w.get('name','')}</td>"
+            f"<td><span class='badge'>{w.get('action','')}</span></td>"
+            f"<td class='num'>{buy_txt}</td>"
+            f"<td class='num'>{sell_txt}</td>"
+            f"<td class='num'>{w.get('price','—')}</td>"
+            f"<td class='num {cls}'>{w.get('change_pct','—')}</td>"
+            f"<td>{w.get('action_detail') or w.get('reason','')}</td>"
+            f"</tr>"
         )
 
     market_cards = []
@@ -263,9 +293,10 @@ def render_html(
 
     <section>
       <h2>監視・おすすめ銘柄</h2>
+      <p class="muted">おすすめ順（スコア高い順）。買付目安は PayPay残高 − 月次積立目安の余力から配分。売却目安は未保有の監視銘柄では原則なし。投資助言ではありません。</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>銘柄</th><th>価格</th><th>変化%</th><th>理由</th></tr></thead>
+          <thead><tr><th>順</th><th>銘柄</th><th>アクション</th><th>買付目安</th><th>売却目安</th><th>価格</th><th>変化%</th><th>内容</th></tr></thead>
           <tbody>{''.join(watch_rows)}</tbody>
         </table>
       </div>

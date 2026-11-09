@@ -24,11 +24,173 @@ WATCH_LOSS_PCT = -10.0
 SELL_REVIEW_LOSS_PCT = -20.0
 BUY_DIP_PCT = -5.0  # 監視銘柄の短期下落で検討
 
+# 監視銘柄のおすすめスコア用カテゴリ
+WATCH_META = {
+    "1306": {"kind": "japan_etf", "paypay_tradable": True, "diversify": "japan"},
+    "2558": {"kind": "global_etf", "paypay_tradable": True, "diversify": "global"},
+    "1540": {"kind": "gold_etf", "paypay_tradable": True, "diversify": "gold"},
+    "spy": {"kind": "us_etf_ref", "paypay_tradable": False, "diversify": "us_ref"},
+    "qqq": {"kind": "us_etf_ref", "paypay_tradable": False, "diversify": "us_ref"},
+}
+
 
 def pnl_pct(cost: float, market: float) -> float:
     if cost <= 0:
         return 0.0
     return (market - cost) / cost * 100
+
+
+def round_yen_1000(amount: float) -> int:
+    if amount <= 0:
+        return 0
+    return int(amount // 1000 * 1000)
+
+
+def portfolio_flags(holdings: list[dict]) -> dict:
+    total = sum(to_float(h.get("market_value")) for h in holdings) or 1.0
+    by = {h["symbol"]: to_float(h.get("market_value")) for h in holdings}
+    sp = by.get("slim_sp500", 0) / total
+    acwi = by.get("slim_acwi", 0) / total
+    theme = (by.get("nissei_ai", 0) + by.get("daiwa_india", 0) + by.get("ihi", 0) + by.get("nvda", 0)) / total
+    return {
+        "total": total,
+        "sp_heavy": sp >= 0.25,
+        "acwi_light": acwi < 0.15,
+        "theme_heavy": theme >= 0.35,
+        "equity_heavy": True,  # 現状ほぼ株式のみ
+    }
+
+
+def build_watch_actions(
+    watchlist: list[dict],
+    prices: list[dict],
+    holdings: list[dict],
+    cash: float,
+    monthly_need: float,
+) -> list[dict]:
+    """監視銘柄をスコア順に並べ、売買金額目安を付ける。"""
+    as_of = now_jst().strftime("%Y-%m-%d %H:%M:%S%z")
+    price_map = {p["symbol"]: p for p in prices}
+    flags = portfolio_flags(holdings)
+    # 積立1ヶ月分を残した余りを買い余力とする
+    surplus = max(0.0, cash - monthly_need)
+    reserve_note = f"PayPay残高{cash:,.0f}円 − 月次積立目安{monthly_need:,.0f}円 = 余力{surplus:,.0f}円"
+
+    scored: list[dict] = []
+    for w in watchlist:
+        symbol = w["symbol"]
+        meta = WATCH_META.get(symbol, {"kind": "other", "paypay_tradable": True, "diversify": ""})
+        p = price_map.get(symbol, {})
+        change_pct = to_float(p.get("change_pct"))
+        price = to_float(p.get("price"))
+        score = 50.0
+        # 下落ほど買い優先
+        score += max(-change_pct, 0) * 4
+        score -= max(change_pct, 0) * 2
+
+        reasons = [w.get("reason", "")]
+        if flags["sp_heavy"] and meta["diversify"] == "global":
+            score += 18
+            reasons.append("保有がS&P寄りのため全世界分散を優先")
+        if flags["acwi_light"] and meta["diversify"] == "global":
+            score += 10
+            reasons.append("オルカン系比率が低め")
+        if flags["theme_heavy"] and meta["diversify"] in {"global", "japan"}:
+            score += 8
+            reasons.append("テーマ・個別比率が高めのため指数へ寄せる候補")
+        if flags["equity_heavy"] and meta["diversify"] == "gold":
+            score += 6
+            reasons.append("株式偏重の分散候補（コモディティ）")
+        if meta["diversify"] == "japan":
+            score += 4
+            reasons.append("日本株エクスポージャの確認用")
+
+        tradable = meta.get("paypay_tradable", True)
+        if not tradable:
+            score -= 25
+            action = "WATCH_REF"
+            buy_yen = 0
+            sell_yen = 0
+            action_detail = "参考監視のみ（米国ETF。PayPay NISAでの直接購入は取扱確認）。相当なら既存のS&P/オルカン積立で代替。"
+        elif surplus < 5000:
+            action = "HOLD"
+            buy_yen = 0
+            sell_yen = 0
+            action_detail = f"買い余力不足。{reserve_note}。必要なら銀行→PayPayへ入金後に再評価。"
+        elif change_pct <= BUY_DIP_PCT:
+            action = "CONSIDER_BUY"
+            # 余力の25〜40%を目安（下限5,000・上限30,000）
+            raw = surplus * (0.40 if change_pct <= -8 else 0.25)
+            buy_yen = min(30000, max(5000, round_yen_1000(raw)))
+            sell_yen = 0
+            action_detail = f"目安 {buy_yen:,}円の買い検討（押し目 {change_pct:+.1f}%）。市場時間中なら即時。"
+            score += 12
+        elif change_pct >= 3.0:
+            action = "WAIT"
+            buy_yen = 0
+            sell_yen = 0
+            action_detail = f"短期上昇中（{change_pct:+.1f}%）。追っかけ買いは見送り、押し目待ち。"
+            score -= 8
+        else:
+            action = "CONSIDER_BUY"
+            buy_yen = min(20000, max(5000, round_yen_1000(surplus * 0.15))) if surplus >= 5000 else 0
+            if buy_yen == 0:
+                action = "HOLD"
+                action_detail = f"様子見。{reserve_note}"
+            else:
+                action_detail = f"目安 {buy_yen:,}円の少額買い検討（分散・積立の補完）。急がなくてよい。"
+            sell_yen = 0
+
+        scored.append(
+            {
+                "as_of": as_of,
+                "rank": 0,
+                "symbol": symbol,
+                "name": w["name"],
+                "score": f"{score:.1f}",
+                "action": action,
+                "buy_yen": str(buy_yen),
+                "sell_yen": str(sell_yen),
+                "price": p.get("price", ""),
+                "change_pct": p.get("change_pct", ""),
+                "action_detail": action_detail,
+                "reason": " / ".join(r for r in reasons if r),
+                "_score": score,
+            }
+        )
+
+    scored.sort(key=lambda r: r["_score"], reverse=True)
+
+    # 買い金額が余力を超えないよう上位から再配分
+    remaining = surplus
+    for row in scored:
+        buy = int(to_float(row["buy_yen"]))
+        if row["action"] not in {"CONSIDER_BUY"} or buy <= 0:
+            row["buy_yen"] = "0"
+            continue
+        if remaining < 5000:
+            row["buy_yen"] = "0"
+            row["action"] = "HOLD"
+            row["action_detail"] = f"上位候補へ余力を優先配分済み。{reserve_note}"
+            continue
+        allocated = min(buy, round_yen_1000(remaining))
+        if allocated < 5000:
+            row["buy_yen"] = "0"
+            row["action"] = "HOLD"
+            row["action_detail"] = f"余力残り僅少のため見送り。{reserve_note}"
+            continue
+        row["buy_yen"] = str(allocated)
+        row["action_detail"] = (
+            f"おすすめ順に基づき目安 {allocated:,}円の買い"
+            f"（単価 {row.get('price') or '—'}、前日比 {row.get('change_pct') or '—'}%）。"
+            " PayPayで手動注文。"
+        )
+        remaining -= allocated
+
+    for i, row in enumerate(scored, start=1):
+        row["rank"] = str(i)
+        row.pop("_score", None)
+    return scored
 
 
 def build_signals(holdings: list[dict], prices: list[dict], watchlist: list[dict], cash: float, monthly_need: float) -> list[dict]:
@@ -91,7 +253,7 @@ def build_signals(holdings: list[dict], prices: list[dict], watchlist: list[dict
                 }
             )
 
-    # 監視銘柄の短期変化
+    # 監視銘柄の短期変化（詳細な金額は watch_actions.csv）
     for w in watchlist:
         p = price_map.get(w["symbol"])
         if not p:
@@ -106,7 +268,7 @@ def build_signals(holdings: list[dict], prices: list[dict], watchlist: list[dict
                     "signal": "CONSIDER_BUY",
                     "priority": "medium",
                     "reason": f"監視銘柄が前日比 {change_pct:.1f}%。押し目検討。",
-                    "suggested_action": "PayPay残高があれば市場時間中に即時購入可。銀行→PayPay入金は即時。",
+                    "suggested_action": "監視おすすめ欄の金額目安を参照。PayPayで手動注文。",
                 }
             )
 
@@ -267,6 +429,7 @@ def main() -> int:
     monthly_need = monthly_accumulation_total(accums)
 
     signals = build_signals(holdings, prices, watchlist, cash, monthly_need)
+    watch_actions = build_watch_actions(watchlist, prices, holdings, cash, monthly_need)
     cashflow = build_cashflow(accums, signals, today_jst())
 
     write_csv(
@@ -275,12 +438,33 @@ def main() -> int:
         ["as_of", "symbol", "name", "signal", "priority", "reason", "suggested_action"],
     )
     write_csv(
+        DATA / "watch_actions.csv",
+        watch_actions,
+        [
+            "as_of",
+            "rank",
+            "symbol",
+            "name",
+            "score",
+            "action",
+            "buy_yen",
+            "sell_yen",
+            "price",
+            "change_pct",
+            "action_detail",
+            "reason",
+        ],
+    )
+    write_csv(
         DATA / "cashflow.csv",
         cashflow,
         ["date", "event_type", "symbol", "amount_yen", "direction", "note"],
     )
 
-    print(f"signals={len(signals)} cashflow={len(cashflow)} monthly_need={monthly_need:.0f}")
+    print(
+        f"signals={len(signals)} watch_actions={len(watch_actions)} "
+        f"cashflow={len(cashflow)} monthly_need={monthly_need:.0f}"
+    )
     return 0
 
 
