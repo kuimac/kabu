@@ -962,7 +962,7 @@ def watch_section(watch_actions: list[dict]) -> str:
     return (
         '<section id="watch"><h2>監視・おすすめ銘柄</h2>'
         + nav
-        + '<p class="muted">おすすめ順（スコア高い順）。買付目安は PayPay残高 − 月次積立目安の余力から配分。売却目安は未保有の監視銘柄では原則なし。投資助言ではありません。</p>'
+        + '<p class="muted">おすすめ順（スコア高い順）。価格を取得できた全銘柄から、買い候補と売り見直しを追加しています。買付目安は PayPay残高 − 月次積立目安の余力から配分。売却目安は売り見直し対象の評価額です。投資助言ではありません。</p>'
         + '<div class="table-wrap"><table><thead><tr><th>順</th><th>銘柄</th><th>アクション</th><th>買付目安</th><th>売却目安</th><th>価格</th><th>変化%</th><th>内容</th></tr></thead><tbody>'
         + "".join(rows)
         + "</tbody></table></div></section>"

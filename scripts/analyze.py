@@ -70,6 +70,51 @@ def portfolio_flags(holdings: list[dict]) -> dict:
     }
 
 
+def trade_candidates(holdings: list[dict], prices: list[dict]) -> list[dict]:
+    """価格を取得できた全銘柄から、買いと売りの対象を返す。"""
+    holding_map = {row["symbol"]: row for row in holdings}
+    candidates: list[dict] = []
+    for price in prices:
+        symbol = (price.get("symbol") or "").strip()
+        if not symbol or symbol in SKIP_SYMBOLS or not str(price.get("price") or "").strip():
+            continue
+        holding = holding_map.get(symbol)
+        change = to_float(price.get("change_pct"))
+        name = (holding.get("name") if holding else "") or price.get("name") or symbol
+        market = to_float(holding.get("market_value")) if holding else 0.0
+        pnl = None
+        if holding:
+            pnl = pnl_pct(to_float(holding.get("cost_value")), market)
+            if pnl <= SELL_REVIEW_LOSS_PCT:
+                candidates.append(
+                    {
+                        "symbol": symbol,
+                        "name": name,
+                        "side": "sell",
+                        "change": change,
+                        "pnl": pnl,
+                        "market": market,
+                        "price": price.get("price", ""),
+                        "change_pct": price.get("change_pct", ""),
+                    }
+                )
+                continue
+        if change < 0 and (pnl is None or pnl > SELL_REVIEW_LOSS_PCT):
+            candidates.append(
+                {
+                    "symbol": symbol,
+                    "name": name,
+                    "side": "buy",
+                    "change": change,
+                    "pnl": pnl,
+                    "market": market,
+                    "price": price.get("price", ""),
+                    "change_pct": price.get("change_pct", ""),
+                }
+            )
+    return candidates
+
+
 def build_watch_actions(
     watchlist: list[dict],
     prices: list[dict],
@@ -164,6 +209,53 @@ def build_watch_actions(
                 "change_pct": p.get("change_pct", ""),
                 "action_detail": action_detail,
                 "reason": " / ".join(r for r in reasons if r),
+                "_score": score,
+            }
+        )
+
+    listed = {row["symbol"] for row in scored}
+    for candidate in trade_candidates(holdings, prices):
+        if candidate["symbol"] in listed:
+            continue
+        if candidate["side"] == "sell":
+            score = 50.0 + min(30.0, -candidate["pnl"] * 0.5)
+            action = SIGNAL_SELL
+            buy_yen = 0
+            sell_yen = int(round(candidate["market"]))
+            action_detail = (
+                f"含み損 {candidate['pnl']:+.1f}%。評価額 {sell_yen:,}円が売り見直しの対象。"
+                "売却はPayPayで手動。"
+            )
+            reason = "取得できた全銘柄の分析。含み損が-20%以下のため売り見直し。"
+        else:
+            score = 50.0 + max(-candidate["change"], 0) * 4
+            action = SIGNAL_BUY
+            sell_yen = 0
+            if surplus < 5000:
+                buy_yen = 0
+                action_detail = (
+                    f"前日比 {candidate['change']:+.1f}% の下落を買い候補にした。"
+                    f"買い余力不足。{reserve_note}。"
+                )
+            else:
+                raw = surplus * (0.40 if candidate["change"] <= -8 else 0.25)
+                buy_yen = min(30000, max(5000, round_yen_1000(raw)))
+                action_detail = f"前日比 {candidate['change']:+.1f}% の下落を買い候補にした。"
+            reason = "取得できた全銘柄の分析。前日比の下落を買い候補にした。"
+        scored.append(
+            {
+                "as_of": as_of,
+                "rank": 0,
+                "symbol": candidate["symbol"],
+                "name": candidate["name"],
+                "score": f"{score:.1f}",
+                "action": action,
+                "buy_yen": str(buy_yen),
+                "sell_yen": str(sell_yen),
+                "price": candidate["price"],
+                "change_pct": candidate["change_pct"],
+                "action_detail": action_detail,
+                "reason": reason,
                 "_score": score,
             }
         )
