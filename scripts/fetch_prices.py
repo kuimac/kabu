@@ -10,7 +10,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (
     DATA,
     MUFG_NAV_URL,
-    append_csv,
     ensure_data_dir,
     fund_market_value,
     implied_nav,
@@ -20,6 +19,7 @@ from common import (
     write_csv,
 )
 from polite_http import shared_session
+from quote_universe import refresh_quote_universe
 from scrape_web import fetch_yahoo_fund_nav
 
 
@@ -177,11 +177,31 @@ def main() -> int:
                 "yahoo_ticker": extra.get("yahoo_ticker", ""),
             }
         )
+    # 保有・監視・比較はそのまま。スクリーナーが列挙できる東証銘柄を足す。
+    try:
+        preset_prices = refresh_quote_universe()
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN quote universe: {exc}")
+        preset_prices = {}
+    for extra in read_csv(DATA / "quote_universe.csv"):
+        symbol = (extra.get("symbol") or "").strip()
+        if not symbol or symbol in seen:
+            continue
+        seen.add(symbol)
+        targets.append(
+            {
+                "symbol": symbol,
+                "name": extra.get("name", ""),
+                "asset_type": extra.get("asset_type", ""),
+                "association_code": extra.get("association_code", ""),
+                "yahoo_ticker": extra.get("yahoo_ticker", ""),
+            }
+        )
 
     history_rows = []
     for t in targets:
         symbol = t["symbol"]
-        got = None
+        got = preset_prices.get(symbol)
         # 1) MUFG公式API（eMAXIS等）
         if t.get("association_code") and t.get("asset_type") == "fund":
             got = fetch_mufg_nav(t["association_code"])
@@ -246,26 +266,17 @@ def main() -> int:
         ["symbol", "name", "price", "currency", "as_of", "source", "change", "change_pct"],
     )
 
-    # 同一日・同一銘柄の重複を避けるため既存を読んでマージ
+    # 同日・同銘柄は再取得した価格で置き、新しい銘柄は追加する
     existing = read_csv(DATA / "prices_history.csv")
-    keyset = {(r.get("date"), r.get("symbol")) for r in existing}
-    to_append = [r for r in history_rows if (r["date"], r["symbol"]) not in keyset]
-    if to_append:
-        append_csv(
-            DATA / "prices_history.csv",
-            to_append,
-            ["date", "symbol", "price", "currency", "source"],
-        )
-    else:
-        # 同日再取得時は最新値で置換
-        merged = [r for r in existing if (r.get("date"), r.get("symbol")) not in {(h["date"], h["symbol"]) for h in history_rows}]
-        merged.extend(history_rows)
-        merged.sort(key=lambda r: (r.get("date", ""), r.get("symbol", "")))
-        write_csv(
-            DATA / "prices_history.csv",
-            merged,
-            ["date", "symbol", "price", "currency", "source"],
-        )
+    fresh_keys = {(r["date"], r["symbol"]) for r in history_rows}
+    merged = [r for r in existing if (r.get("date"), r.get("symbol")) not in fresh_keys]
+    merged.extend(history_rows)
+    merged.sort(key=lambda r: (r.get("date", ""), r.get("symbol", "")))
+    write_csv(
+        DATA / "prices_history.csv",
+        merged,
+        ["date", "symbol", "price", "currency", "source"],
+    )
 
     # 保有評価の再計算
     if holdings:

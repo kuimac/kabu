@@ -12,7 +12,7 @@ import analyze
 from common import DATA, DOCS, ensure_data_dir, now_jst, read_csv, to_float
 
 PREVIEW_LIMIT = 5
-ATTR_ORDER = ["国内投信", "国内株", "米国株", "国内ETF", "米国ETF", "指数"]
+ATTR_ORDER = ["国内投信", "国内株", "東証外国株", "国内REIT", "米国株", "国内ETF", "米国ETF", "指数"]
 BUY_KINDS = {"買付", "買い", "buy"}
 SUBPAGES = [
     ("quotes.html", "取得銘柄", "quotes"),
@@ -168,6 +168,10 @@ def attribute_of(asset_type: str, ticker: str) -> str:
         return "国内ETF" if ticker.endswith(".T") else "米国ETF"
     if asset_type == "stock":
         return "国内株" if ticker.endswith(".T") else "米国株"
+    if asset_type == "foreign_stock":
+        return "東証外国株" if ticker.endswith(".T") else "外国株"
+    if asset_type == "reit":
+        return "国内REIT"
     if asset_type == "index":
         return "指数"
     return "その他"
@@ -201,6 +205,7 @@ def build_catalog(
     watchlist: list[dict],
     prices: list[dict],
     universe: list[dict] | None = None,
+    quote_universe: list[dict] | None = None,
 ) -> list[dict]:
     names = {row["symbol"]: row.get("name", "") for row in prices}
     seen: set[str] = set()
@@ -228,6 +233,8 @@ def build_catalog(
         add(row, "監視")
     for row in universe or []:
         add(row, "比較")
+    for row in quote_universe or []:
+        add(row, "公開")
     for row in prices:
         add(row, "価格のみ")
     return rows
@@ -586,7 +593,9 @@ TRADE_NOTE = (
     "初期記録として保存しています。この行は売買の約定ではありません。</p>"
 )
 CATALOG_NOTE = (
-    '<p class="muted">価格を取得できた銘柄です。番号は投信の協会コード、株式・ETFのティッカーです。</p>'
+    '<p class="muted">価格を取得できた銘柄です。番号は投信の協会コード、株式・ETFのティッカーです。'
+    "区分「公開」は、yfinance が列挙できる東証の株式・ETFです。日本語名はJPXの東証上場銘柄一覧で補っています。"
+    "投信は保有分だけ、米ドル円はこの一覧に出しません。</p>"
 )
 
 
@@ -1143,7 +1152,9 @@ def quotes_block(rows: list[dict]) -> str:
     )
     intro = (
         '<p class="muted">価格を取得できた銘柄です。取得時点はデータに記録された日付で、'
-        "時刻まで入っているものだけ時刻を表示します。名前から個別ページのチャートを開けます。</p>"
+        "時刻まで入っているものだけ時刻を表示します。名前から個別ページのチャートを開けます。"
+        "保有・監視・比較に加え、yfinance が列挙できる東証の株式とETFを含みます。"
+        "投信の全銘柄と、東証に無い米国株はこの一覧に足していません。</p>"
     )
     return panel("", "取得できた銘柄", "", intro, table, len(rows), 0, None)
 
@@ -1226,7 +1237,8 @@ def main() -> int:
     trades = read_csv(DATA / "trades.csv")
     watch_actions = read_csv(DATA / "watch_actions.csv")
     universe = read_csv(DATA / "universe.csv")
-    catalog = build_catalog(holdings, watchlist, prices, universe)
+    quote_universe = read_csv(DATA / "quote_universe.csv")
+    catalog = build_catalog(holdings, watchlist, prices, universe, quote_universe)
     chart_json = json.dumps(build_chart_payload(holdings, history), ensure_ascii=False)
     updated = now_jst().strftime("%Y-%m-%d %H:%M JST")
     pages = {

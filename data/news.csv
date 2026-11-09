@@ -1,4 +1,10 @@
 published,source,title,link,category
+2026-11-09T18:00:00+09:00,JPXマーケットニュース,[OSE]制限値幅の拡大：日本たばこ産業株式会社　株式に係る有価証券オプション取引,https://www.jpx.co.jp/news/2020/20261109-01.html,markets_news
+2026-11-09T16:30:00+09:00,JPXマーケットニュース,[JPX総研]TOPIXの構成銘柄への追加について,https://www.jpx.co.jp/news/6030/20261109-01.html,markets_news
+2026-11-09T16:15:00+09:00,JPXマーケットニュース,[東証]上場廃止の決定：（株）日本総険,https://www.jpx.co.jp/news/1021/20261109-19.html,markets_news
+2026-11-09T16:00:00+09:00,JPXマーケットニュース,[東証]新規上場の承認取消し（ＲＥＩＴ）：KDX Kolet投資法人,https://www.jpx.co.jp/news/1021/20261109-12.html,markets_news
+2026-11-09T16:00:00+09:00,JPXマーケットニュース,[東証]グロース市場からプライム市場への変更：（株）ノースサンド,https://www.jpx.co.jp/listing/stocks/transfers/index.html,markets_news
+2026-11-09T15:45:00+09:00,JPXマーケットニュース,[東証]制限値幅の拡大：1銘柄,https://www.jpx.co.jp/news/1030/20261109-01.html,markets_news
 2026-11-09T13:00:00+09:00,JPXマーケットニュース,[東証]新規上場日の初値決定前の気配運用について：（株）RECEPTIONIST,https://www.jpx.co.jp/news/1031/20261109_01.html,markets_news
 2026-11-09T11:00:00+09:00,JPXマーケットニュース,[TOCOM]TOCOM電力先物の取引高が過去最高を更新（2026年10月）,https://www.jpx.co.jp/news/2041/20261109-01.html,markets_news
 2026-11-06T18:10:00+09:00,JPXマーケットニュース,[東証]監理銘柄（確認中）の指定：（株）チャーム・ケア・コーポレーション,https://www.jpx.co.jp/news/1023/20261106-12.html,markets_news
@@ -16,8 +22,17 @@ published,source,title,link,category
 2026-11-04T12:00:00+09:00,JPXアラート,三井化学（株）（4183）,https://www.jpx.co.jp/markets/equities/alerts/index.html,alerts
 2026-11-02T18:00:00+09:00,JPXマーケットニュース,[東証]新規上場日の基準値段等：iFreeETF 日本株累進高配当戦略（コード665A）,https://www.jpx.co.jp/news/1030/20261102-02.html,markets_news
 2026-11-02T17:01:00+09:00,JPXマーケットニュース,"[OSE,TOCOM]デリバティブの祝日取引の実施について（2026年11月3日）",https://www.jpx.co.jp/news/2040/20261102-01.html,markets_news
-2026-11-02T16:00:00+09:00,JPXマーケットニュース,[東証]TOKYO PRO Marketへの上場申請：（株）Ｇｉｎｚａ,https://www.jpx.co.jp/equities/products/tpm/issues/index.html,markets_news
 2026-11-02T16:00:00+09:00,JPXニュース,[JPX]JPXマンスリー・ヘッドライン（10月分）について,https://www.jpx.co.jp/corporate/news/news-releases/0060/20261102-02.html,jpx-news
 2026-11-02T16:00:00+09:00,JPXニュース,"[JPX,東証,OSE,TOCOM]2026年10月の売買状況について",https://www.jpx.co.jp/corporate/news/news-releases/0063/20261102-11.html,jpx-news
-2026-11-02T15:45:00+09:00,JPXマーケットニュース,[東証]制限値幅の拡大：1銘柄,https://www.jpx.co.jp/news/1030/20261102-01.html,markets_news
-2026-11-02T13:00:00+09:00,JPXマーケットニュース,[東証]新規上場日の初値決定前の気配運用について：Allganize Holdings（株）,https://www.jpx.co.jp/news/1031/20261102_01.html,markets_news
+,株探,ＪＸ金属【5016】、今期最終を13％上方修正・最高益予想を上乗せ,https://kabutan.jp/news/marketnews/?b=k202611090116,kabutan
+,株探,話題株ピックアップ【夕刊】（1）：ｓａｎｔｅｃ、セカリテ、チャームケア,https://kabutan.jp/news/marketnews/?b=n202611091014,kabutan
+,株探,清水建設【1803】、今期経常を21％上方修正・最高益予想を上乗せ、配当も12円増額,https://kabutan.jp/news/marketnews/?b=k202611090010,kabutan
+,株探,本日の決算発表予定 … ＪＸ金属、古河電、コクサイエレなど 175社 (11月9日),https://kabutan.jp/news/marketnews/?b=n202611090006,kabutan
+,株探,明日の株式相場に向けて＝ソフトバンクＧは「バッグホルダー」となるのか,https://kabutan.jp/news/marketnews/?b=n202611091243,kabutan
+,株探,商船三井【9104】、上期経常は43％増益で着地、株式分割に伴い配当予想を修正,https://kabutan.jp/news/marketnews/?b=k202611090014,kabutan
+,株探,利益成長【青天井】銘柄リスト〔第1弾〕 37社選出 ＜成長株特集＞,https://kabutan.jp/news/marketnews/?b=n202611080061,kabutan
+,株探,レーティング日報【最上位を継続＋目標株価を増額】　(11月9日),https://kabutan.jp/news/marketnews/?b=n202611091215,kabutan
+,株探,トレンド追随【パラボリック陽転】低PER 23社選出　＜テクニカル特集＞　11月9日版,https://kabutan.jp/news/marketnews/?b=n202611091238,kabutan
+,株探,★本日の【サプライズ決算】続報 (11月09日),https://kabutan.jp/news/marketnews/?b=n202611091281,kabutan
+,株探,[PTS]ナイトタイムセッション17時30分時点　上昇108銘柄・下落150銘柄（東証終値比）,https://kabutan.jp/news/marketnews/?b=n202611091247,kabutan
+,株探,AIへの過剰な恐怖と買収劇の結末、物言う株主が見据えた相場の裏表＜13Fで読み解く米著名投資家の売買戦略＞第6回,https://kabutan.jp/news/marketnews/?b=n202611090252,kabutan

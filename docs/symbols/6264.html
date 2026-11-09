@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>マルマエ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+<button class="sidemenu-backdrop" type="button" data-menu-close aria-label="メニューを閉じる"></button>
+<div class="shell">
+<aside id="sidemenu" class="sidemenu" aria-label="下層ページ"><p class="sidemenu-label">メニュー</p><a href="../index.html#top">トップ</a><div class="sidemenu-group"><p class="sidemenu-sublabel">下層ページ</p><a href="../quotes.html" aria-current="page">取得銘柄</a><a href="../instruments.html">銘柄一覧</a><a href="../holdings.html">保有</a><a href="../trades.html">売買履歴</a><a href="../accum.html">積立</a><a href="../cashflow.html">資金スケジュール</a></div></aside>
+<div class="page">
+  <header class="site-header">
+    <div class="wrap header-bar">
+      <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="sidemenu">メニュー</button>
+      <div>
+        <p class="brand">NISA Desk</p>
+        <h1>マルマエ</h1>
+        <p class="sub">PayPay証券の注文は手動。最終更新 2026-11-09 18:11 JST</p>
+      </div>
+    </div>
+  </header>
+  <main class="wrap" id="content">
+<section><nav class="section-menu" aria-label="銘柄のメニュー"><a href="../quotes.html">取得銘柄</a><a href="../index.html#top">トップ</a></nav><p>6264.T · 国内株 · 公開</p><p class="big">1323.0000 JPY</p><p class="pos">前日比 4.50%</p><p class="as-of">価格の取得時点 <time datetime="2026-11-09">取得 2026-11-09</time></p><div class="chart-card"><h3>記録した価格</h3><canvas id="priceChart"></canvas><p class="muted">横軸は記録日です。時刻が記録されていない点は日付だけを表示します。</p></div><div class="table-wrap"><table><thead><tr><th>記録</th><th>価格</th><th>通貨</th><th>取得元</th></tr></thead><tbody><tr><td><time datetime="2026-11-09">2026-11-09</time></td><td class="num">1323.0000</td><td>JPY</td><td>yfinance</td></tr></tbody></table></div></section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>本ページは投資助言ではありません。最終判断はご自身で行ってください。</p>
+      <p>口座番号・銀行情報などの個人識別情報は含みません。データはCSVで管理しています。</p>
+      <p>更新: 2026-11-09 18:11 JST</p>
+    </div>
+  </footer>
+</div>
+</div>
+<script id="chart-data" type="application/json">{"priceLabels": ["2026-11-09"], "priceValues": [1323.0]}</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script><script src="../assets/charts.js" defer></script><script src="../assets/desk.js" defer></script>
+</body>
+</html>
