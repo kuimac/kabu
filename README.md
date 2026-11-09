@@ -43,6 +43,7 @@ python scripts/update_all.py
 | ファイル | 用途 |
 |---------|------|
 | `data/holdings.csv` | 保有口数・取得額 |
+| `data/trades.csv` | 売買履歴。約定が無い保有は初期記録 |
 | `data/accumulations.csv` | 積立設定 |
 | `data/cash_balance.csv` | PayPay残高（手入力） |
 | `data/watchlist.csv` | 監視・おすすめ銘柄 |
@@ -52,6 +53,8 @@ python scripts/update_all.py
 PayPay証券の投信口数は **千口表示** として `unit_multiplier=1000` で評価額を計算しています（S&P500・オルカンで公式NAVと一致を確認）。表示口数や取得額がアプリと違う場合は `holdings.csv` を直して再実行してください。
 
 ニッセイAI・ダイワインドは公式JSON APIがないため、当面は `holdings.csv` の評価額を手更新（または implied NAV）します。
+
+`data/trades.csv` は売買履歴です。いまの保有に約定データはないため、2026-11-09 14:28 JST の値段・損益額・率を区分「初期記録」として保存しています。購入日は空欄で、画面では未記録です。実際の買付・売却は行を追加します。初期記録は約定ではありません。
 
 ## スマホから更新する
 
@@ -73,6 +76,7 @@ PayPay証券の投信口数は **千口表示** として `unit_multiplier=1000`
 | ファイル | 用途 |
 |---------|------|
 | `data/holdings.csv` | 保有口数・取得額 |
+| `data/trades.csv` | 売買履歴（初期記録と、以降の約定） |
 | `data/accumulations.csv` | 積立設定 |
 | `data/cash_balance.csv` | PayPay残高 |
 | `data/watchlist.csv` | 監視銘柄 |
