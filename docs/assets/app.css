@@ -315,6 +315,8 @@ th {
   font-size: 0.84rem;
 }
 table.wide { min-width: 1080px; }
+table a { color: inherit; text-decoration: none; }
+table a:hover { color: var(--accent); }
 .filter-empty { margin: 0.4rem 0; }
 
 .holding-total {

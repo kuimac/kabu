@@ -15,6 +15,7 @@ PREVIEW_LIMIT = 5
 ATTR_ORDER = ["国内投信", "国内株", "米国株", "国内ETF", "米国ETF"]
 BUY_KINDS = {"買付", "買い", "buy"}
 SUBPAGES = [
+    ("quotes.html", "取得銘柄", "quotes"),
     ("instruments.html", "銘柄一覧", "instruments"),
     ("holdings.html", "保有", "holdings"),
     ("trades.html", "売買履歴", "trades"),
@@ -81,10 +82,10 @@ def menubar(label: str, links: list[tuple[str, str]], current: str | None = None
     return f'<nav class="section-menu" aria-label="{esc(label)}">{"".join(parts)}</nav>'
 
 
-def sidemenu(current: str) -> str:
+def sidemenu(current: str, asset_prefix: str = "") -> str:
     def link(href: str, text: str, key: str) -> str:
         current_attr = ' aria-current="page"' if key == current else ""
-        return f'<a href="{esc(href)}"{current_attr}>{esc(text)}</a>'
+        return f'<a href="{esc(asset_prefix + href)}"{current_attr}>{esc(text)}</a>'
 
     children = "".join(link(href, text, key) for href, text, key in SUBPAGES)
     return (
@@ -97,7 +98,14 @@ def sidemenu(current: str) -> str:
     )
 
 
-def layout(title: str, current: str, body: str, updated: str, chart_json: str | None) -> str:
+def layout(
+    title: str,
+    current: str,
+    body: str,
+    updated: str,
+    chart_json: str | None,
+    asset_prefix: str = "",
+) -> str:
     chart_tag = ""
     chart_scripts = ""
     if chart_json is not None:
@@ -105,7 +113,7 @@ def layout(title: str, current: str, body: str, updated: str, chart_json: str | 
         chart_tag = f'<script id="chart-data" type="application/json">{safe_json}</script>'
         chart_scripts = (
             '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script>'
-            '<script src="assets/charts.js" defer></script>'
+            f'<script src="{esc(asset_prefix)}assets/charts.js" defer></script>'
         )
     return (
         "<!DOCTYPE html>\n"
@@ -117,12 +125,12 @@ def layout(title: str, current: str, body: str, updated: str, chart_json: str | 
         '  <link rel="preconnect" href="https://fonts.googleapis.com" />\n'
         '  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\n'
         '  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet" />\n'
-        '  <link rel="stylesheet" href="assets/app.css" />\n'
+        f'  <link rel="stylesheet" href="{esc(asset_prefix)}assets/app.css" />\n'
         "</head>\n"
         "<body>\n"
         '<button class="sidemenu-backdrop" type="button" data-menu-close aria-label="メニューを閉じる"></button>\n'
         '<div class="shell">\n'
-        + sidemenu(current)
+        + sidemenu(current, asset_prefix)
         + '\n<div class="page">\n'
         '  <header class="site-header">\n'
         '    <div class="wrap header-bar">\n'
@@ -149,7 +157,7 @@ def layout(title: str, current: str, body: str, updated: str, chart_json: str | 
         + chart_tag
         + "\n"
         + chart_scripts
-        + '<script src="assets/desk.js" defer></script>\n'
+        + f'<script src="{esc(asset_prefix)}assets/desk.js" defer></script>\n'
         "</body>\n"
         "</html>\n"
     )
@@ -164,6 +172,11 @@ def attribute_of(asset_type: str, ticker: str) -> str:
     if asset_type == "stock":
         return "国内株" if ticker.endswith(".T") else "米国株"
     return "その他"
+
+
+def symbol_href(symbol: str, prefix: str = "") -> str:
+    safe = re.sub(r"[^A-Za-z0-9._-]", "", symbol or "")
+    return f"{prefix}symbols/{safe}.html"
 
 
 def instrument_code(row: dict) -> str:
@@ -365,9 +378,11 @@ def instrument_table(rows: list[dict], fold: int) -> str:
             + item_class(index, fold)
             + '" data-attr="'
             + esc(row["attribute"])
-            + '"><td>'
+            + '"><td><a href="'
+            + esc(symbol_href(row["symbol"]))
+            + '">'
             + esc(row["name"])
-            + '</td><td class="code">'
+            + '</a></td><td class="code">'
             + esc(row["code"])
             + "</td><td>"
             + esc(row["attribute"])
@@ -1038,6 +1053,159 @@ def index_body(
     )
 
 
+def fetched_quotes(catalog: list[dict], prices: list[dict]) -> list[dict]:
+    by_symbol = {
+        row["symbol"]: row
+        for row in prices
+        if row.get("symbol") and row.get("symbol") != "USDJPY" and str(row.get("price") or "").strip()
+    }
+    rows: list[dict] = []
+    seen: set[str] = set()
+    for item in catalog:
+        price = by_symbol.get(item["symbol"])
+        if not price:
+            continue
+        seen.add(item["symbol"])
+        rows.append({**item, "quote": price})
+    for symbol, price in by_symbol.items():
+        if symbol in seen:
+            continue
+        rows.append(
+            {
+                "symbol": symbol,
+                "name": price.get("name") or symbol,
+                "code": symbol,
+                "attribute": "その他",
+                "kind": "価格のみ",
+                "quote": price,
+            }
+        )
+    return rows
+
+
+def history_points(symbol: str, history: list[dict], quote: dict) -> list[dict]:
+    points = [row for row in history if row.get("symbol") == symbol and str(row.get("price") or "").strip()]
+    points.sort(key=lambda row: row.get("date") or "")
+    if points:
+        return points
+    if str(quote.get("price") or "").strip():
+        return [
+            {
+                "date": quote.get("as_of") or "",
+                "symbol": symbol,
+                "price": quote.get("price") or "",
+                "currency": quote.get("currency") or "",
+                "source": quote.get("source") or "",
+            }
+        ]
+    return []
+
+
+def quotes_block(rows: list[dict]) -> str:
+    body = []
+    for row in rows:
+        quote = row["quote"]
+        change = to_float(quote.get("change_pct"))
+        fetched, stamp = format_fetched_at(quote.get("as_of") or "")
+        time_attr = f' datetime="{esc(stamp)}"' if stamp else ""
+        body.append(
+            "<tr><td><a href=\""
+            + esc(symbol_href(row["symbol"]))
+            + '">'
+            + esc(row["name"])
+            + '</a></td><td class="code">'
+            + esc(row["code"])
+            + "</td><td>"
+            + esc(row["attribute"])
+            + '</td><td class="num">'
+            + esc(quote.get("price") or "—")
+            + '</td><td class="num '
+            + pnl_class(change)
+            + '">'
+            + esc(quote.get("change_pct") or "—")
+            + '</td><td class="as-of"><time'
+            + time_attr
+            + ">"
+            + esc(fetched)
+            + "</time></td></tr>"
+        )
+    table = (
+        '<div class="table-wrap"><table><thead><tr>'
+        "<th>名前</th><th>番号</th><th>属性</th><th>価格</th><th>前日比%</th><th>取得時点</th>"
+        "</tr></thead><tbody>"
+        + "".join(body)
+        + "</tbody></table></div>"
+    )
+    intro = (
+        '<p class="muted">価格を取得できた銘柄です。取得時点はデータに記録された日付で、'
+        "時刻まで入っているものだけ時刻を表示します。名前から個別ページのチャートを開けます。</p>"
+    )
+    return panel("", "取得できた銘柄", "", intro, table, len(rows), 0, None)
+
+
+def symbol_page(row: dict, history: list[dict], prefix: str) -> tuple[str, str]:
+    quote = row["quote"]
+    points = history_points(row["symbol"], history, quote)
+    fetched, stamp = format_fetched_at(quote.get("as_of") or "")
+    time_attr = f' datetime="{esc(stamp)}"' if stamp else ""
+    change = to_float(quote.get("change_pct"))
+    point_rows = []
+    for point in points:
+        when, point_stamp = format_fetched_at(point.get("date") or "")
+        point_time = f' datetime="{esc(point_stamp)}"' if point_stamp else ""
+        point_rows.append(
+            "<tr><td><time"
+            + point_time
+            + ">"
+            + esc(when.removeprefix("取得 "))
+            + '</time></td><td class="num">'
+            + esc(point.get("price") or "—")
+            + "</td><td>"
+            + esc(point.get("currency") or quote.get("currency") or "")
+            + "</td><td>"
+            + esc(point.get("source") or "")
+            + "</td></tr>"
+        )
+    chart = {
+        "priceLabels": [point.get("date") or "" for point in points],
+        "priceValues": [to_float(point.get("price")) for point in points],
+    }
+    nav = menubar(
+        "銘柄のメニュー",
+        [(f"{prefix}quotes.html", "取得銘柄"), (f"{prefix}index.html#top", "トップ")],
+    )
+    body = (
+        "<section>"
+        + nav
+        + "<p>"
+        + esc(row["code"])
+        + " · "
+        + esc(row["attribute"])
+        + " · "
+        + esc(row["kind"])
+        + '</p><p class="big">'
+        + esc(quote.get("price") or "—")
+        + " "
+        + esc(quote.get("currency") or "")
+        + '</p><p class="'
+        + pnl_class(change)
+        + '">前日比 '
+        + esc(quote.get("change_pct") or "—")
+        + '%</p><p class="as-of">価格の取得時点 <time'
+        + time_attr
+        + ">"
+        + esc(fetched)
+        + "</time></p>"
+        + '<div class="chart-card"><h3>記録した価格</h3>'
+        '<canvas id="priceChart"></canvas>'
+        '<p class="muted">横軸は記録日です。時刻が記録されていない点は日付だけを表示します。</p></div>'
+        + '<div class="table-wrap"><table><thead><tr><th>記録</th><th>価格</th><th>通貨</th><th>取得元</th></tr></thead><tbody>'
+        + "".join(point_rows)
+        + "</tbody></table></div></section>"
+    )
+    return body, json.dumps(chart, ensure_ascii=False)
+
+
 def main() -> int:
     ensure_data_dir()
     holdings = read_csv(DATA / "holdings.csv")
@@ -1102,6 +1270,30 @@ def main() -> int:
             None,
         ),
     }
+    quote_rows = fetched_quotes(catalog, prices)
+    pages["quotes.html"] = layout(
+        "取得銘柄",
+        "quotes",
+        "<section>" + subpage_nav("quotes.html") + quotes_block(quote_rows) + "</section>",
+        updated,
+        None,
+    )
+    symbol_dir = DOCS / "symbols"
+    symbol_dir.mkdir(exist_ok=True)
+    written: set[str] = set()
+    for row in quote_rows:
+        body, chart_json = symbol_page(row, history, "../")
+        safe = symbol_href(row["symbol"]).rsplit("/", 1)[-1]
+        path = symbol_dir / safe
+        path.write_text(
+            layout(row["name"], "quotes", body, updated, chart_json, asset_prefix="../"),
+            encoding="utf-8",
+        )
+        written.add(safe)
+        print(f"wrote {path}")
+    for old in symbol_dir.glob("*.html"):
+        if old.name not in written:
+            old.unlink()
     for name, html in pages.items():
         path = DOCS / name
         path.write_text(html, encoding="utf-8")

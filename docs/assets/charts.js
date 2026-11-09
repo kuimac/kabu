@@ -67,4 +67,33 @@
       }
     });
   }
+
+  var priceCanvas = document.getElementById("priceChart");
+  if (priceCanvas && data.priceLabels) {
+    new Chart(priceCanvas, {
+      type: "line",
+      data: {
+        labels: data.priceLabels,
+        datasets: [{
+          data: data.priceValues,
+          borderColor: accent,
+          backgroundColor: "rgba(62, 207, 142, 0.16)",
+          pointBackgroundColor: accent,
+          pointRadius: 4,
+          tension: 0.15,
+          fill: true
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: {
+            title: { display: true, text: "記録日", color: muted },
+            ticks: { maxRotation: 45, minRotation: 0 }
+          },
+          y: { grid: { color: grid } }
+        }
+      }
+    });
+  }
 })();
