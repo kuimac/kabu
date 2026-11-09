@@ -19,19 +19,16 @@ SUBPAGES = [
     ("instruments.html", "銘柄一覧", "instruments"),
     ("holdings.html", "保有", "holdings"),
     ("trades.html", "売買履歴", "trades"),
+    ("accum.html", "積立", "accum"),
+    ("cashflow.html", "資金スケジュール", "cashflow"),
 ]
 INDEX_SECTIONS = [
-    ("#top-instruments", "銘柄一覧"),
-    ("#top-holdings", "保有"),
-    ("#watch", "監視銘柄"),
-    ("#top-trades", "売買履歴"),
     ("#top-topics", "トピック"),
+    ("#watch", "監視銘柄"),
     ("#top-signal-rank", "強い売買"),
     ("#market", "市場と残高"),
     ("#holdings", "保有の内訳"),
     ("#signals", "売買シグナル"),
-    ("#accum", "積立"),
-    ("#cashflow", "資金スケジュール"),
 ]
 
 
@@ -887,7 +884,7 @@ def signal_section(signals: list[dict]) -> str:
             + esc(row.get("suggested_action"))
             + "</td></tr>"
         )
-    nav = menubar("シグナルのメニュー", [("#signals", "シグナル"), ("#top-holdings", "保有")])
+    nav = menubar("シグナルのメニュー", [("#signals", "シグナル"), ("holdings.html", "保有")])
     return (
         '<section id="signals"><h2>売買シグナル</h2>'
         + nav
@@ -915,7 +912,7 @@ def accum_section(accums: list[dict]) -> str:
             + yen(to_float(row.get("monthly_estimate_yen")))
             + "</td></tr>"
         )
-    nav = menubar("積立のメニュー", [("#accum", "積立"), ("#cashflow", "資金スケジュール")])
+    nav = menubar("積立のメニュー", [("accum.html", "積立"), ("cashflow.html", "資金スケジュール")], "accum.html")
     return (
         '<section id="accum"><h2>積立設定</h2>'
         + nav
@@ -930,7 +927,7 @@ def accum_section(accums: list[dict]) -> str:
 
 def cashflow_section(cashflow: list[dict]) -> str:
     rows = []
-    for row in cashflow[:40]:
+    for row in cashflow:
         rows.append(
             "<tr><td>"
             + esc(row.get("date"))
@@ -944,7 +941,11 @@ def cashflow_section(cashflow: list[dict]) -> str:
             + esc(row.get("note"))
             + "</td></tr>"
         )
-    nav = menubar("資金のメニュー", [("#cashflow", "資金スケジュール"), ("#accum", "積立")])
+    nav = menubar(
+        "資金のメニュー",
+        [("cashflow.html", "資金スケジュール"), ("accum.html", "積立")],
+        "cashflow.html",
+    )
     return (
         '<section id="cashflow"><h2>資金スケジュール</h2>'
         + nav
@@ -1039,17 +1040,14 @@ def index_body(
     page_nav = menubar("トップのセクション", INDEX_SECTIONS)
     top = (
         '<section class="hero-topics" id="top">'
-        '<div class="topics-header"><p class="eyebrow">Top</p><h2>銘柄・保有・売買</h2>'
+        '<div class="topics-header"><p class="eyebrow">Top</p><h2>トピック・監視・売買</h2>'
         '<p class="sub">はじめの5件を表示します。残りはこのセクションで開けます。</p></div>'
-        + catalog_block(catalog, PREVIEW_LIMIT, "top-instruments", "instruments.html")
-        + holdings_block(holdings, trades, PREVIEW_LIMIT, "top-holdings", "holdings.html")
-        + watch_block(watch_actions, PREVIEW_LIMIT)
-        + trades_block(trades, PREVIEW_LIMIT, "top-trades", "trades.html")
         + topics_block(signals, news, market, PREVIEW_LIMIT)
+        + watch_block(watch_actions, PREVIEW_LIMIT)
         + signal_rank_block(analyze.rank_trade_signals(holdings, prices, watchlist), PREVIEW_LIMIT)
         + "</section>"
     )
-    chart_nav = menubar("保有チャートのメニュー", [("#holdings", "チャート"), ("#top-holdings", "保有の数値")])
+    chart_nav = menubar("保有チャートのメニュー", [("#holdings", "チャート"), ("holdings.html", "保有の数値")])
     charts = '<section id="holdings"><h2>保有の内訳</h2>' + chart_nav + charts_html() + "</section>"
     return (
         page_nav
@@ -1057,8 +1055,6 @@ def index_body(
         + market_section(market, holdings, accums, cash_rows)
         + charts
         + signal_section(signals)
-        + accum_section(accums)
-        + cashflow_section(cashflow)
     )
 
 
@@ -1276,6 +1272,20 @@ def main() -> int:
             "売買履歴",
             "trades",
             "<section>" + subpage_nav("trades.html") + trades_block(trades, 0, "", "") + "</section>",
+            updated,
+            None,
+        ),
+        "accum.html": layout(
+            "積立設定",
+            "accum",
+            "<section>" + subpage_nav("accum.html") + accum_section(accums) + "</section>",
+            updated,
+            None,
+        ),
+        "cashflow.html": layout(
+            "資金スケジュール",
+            "cashflow",
+            "<section>" + subpage_nav("cashflow.html") + cashflow_section(cashflow) + "</section>",
             updated,
             None,
         ),
