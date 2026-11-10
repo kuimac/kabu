@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 import sys
+import time
 from pathlib import Path
 
 import yfinance as yf
@@ -188,11 +189,25 @@ def main() -> int:
             }
         )
     # 保有・監視・比較はそのまま。スクリーナーが列挙できる東証銘柄を足す。
-    try:
-        preset_prices = refresh_quote_universe()
-    except Exception as exc:  # noqa: BLE001
-        print(f"WARN quote universe: {exc}")
-        preset_prices = {}
+    preset_prices: dict[str, dict] = {}
+    for attempt in range(3):
+        try:
+            preset_prices = refresh_quote_universe()
+            break
+        except Exception as exc:  # noqa: BLE001
+            print(f"WARN quote universe attempt {attempt + 1}: {exc}", flush=True)
+            time.sleep(5)
+    if not preset_prices:
+        from quote_universe import _history_prices
+
+        stored = [row for row in read_csv(DATA / "quote_universe.csv") if row.get("symbol") and row.get("yahoo_ticker")]
+        print(f"WARN quote universe: batching stored prices n={len(stored)}", flush=True)
+        found = _history_prices([row["yahoo_ticker"] for row in stored])
+        for row in stored:
+            got = found.get(row["yahoo_ticker"])
+            if got:
+                preset_prices[row["symbol"]] = got
+        print(f"OK stored batch prices={len(preset_prices)}", flush=True)
     for extra in read_csv(DATA / "quote_universe.csv"):
         symbol = (extra.get("symbol") or "").strip()
         if not symbol or symbol in seen:

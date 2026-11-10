@@ -726,7 +726,7 @@ def topic_cards(signals: list[dict], news: list[dict]) -> list[str]:
             + esc(row.get("reason"))
             + "</p></article>"
         )
-    for row in (jpx_news + other_news)[:6]:
+    for row in jpx_news + other_news:
         published = (row.get("published") or "")[:16]
         meta = " · ".join(part for part in [row.get("source", ""), published] if part)
         cards.append(

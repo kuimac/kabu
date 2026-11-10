@@ -134,7 +134,7 @@ def fetch_yahoo_stock_quote(code: str, session: PoliteSession | None = None) -> 
     }
 
 
-def fetch_kabutan_news(limit: int = 15, session: PoliteSession | None = None) -> list[dict]:
+def fetch_kabutan_news(limit: int | None = None, session: PoliteSession | None = None) -> list[dict]:
     sess = session or shared_session()
     url = "https://kabutan.jp/news/"
     try:
@@ -165,13 +165,13 @@ def fetch_kabutan_news(limit: int = 15, session: PoliteSession | None = None) ->
                 "category": "kabutan",
             }
         )
-        if len(rows) >= limit:
+        if limit is not None and len(rows) >= limit:
             break
     print(f"OK 株探ニュース: {len(rows)} items")
     return rows
 
 
-def fetch_minkabu_news(limit: int = 10, session: PoliteSession | None = None) -> list[dict]:
+def fetch_minkabu_news(limit: int | None = None, session: PoliteSession | None = None) -> list[dict]:
     sess = session or shared_session()
     url = "https://minkabu.jp/news"
     try:
@@ -205,7 +205,7 @@ def fetch_minkabu_news(limit: int = 10, session: PoliteSession | None = None) ->
                 "category": "minkabu",
             }
         )
-        if len(rows) >= limit:
+        if limit is not None and len(rows) >= limit:
             break
     print(f"OK みんかぶニュース: {len(rows)} items")
     return rows

@@ -32,7 +32,7 @@ def fetch_jpx_rss() -> list[dict]:
         if getattr(feed, "bozo", False) and not feed.entries:
             print(f"WARN RSS failed: {url} ({feed.bozo_exception})")
             continue
-        for entry in feed.entries[:20]:
+        for entry in feed.entries:
             rows.append(
                 {
                     "published": normalize_published(entry),
@@ -42,7 +42,7 @@ def fetch_jpx_rss() -> list[dict]:
                     "category": getattr(feed.feed, "category", source_name),
                 }
             )
-        print(f"OK {source_name}: {min(len(feed.entries), 20)} items")
+        print(f"OK {source_name}: {len(feed.entries)} items")
     return rows
 
 
@@ -53,8 +53,8 @@ def main() -> int:
 
     # HTMLスクレイピングは間隔を十分にあける（PoliteSession共有）
     session = shared_session()
-    rows.extend(fetch_kabutan_news(limit=12, session=session))
-    rows.extend(fetch_minkabu_news(limit=8, session=session))
+    rows.extend(fetch_kabutan_news(session=session))
+    rows.extend(fetch_minkabu_news(session=session))
 
     seen = set()
     unique = []
@@ -67,7 +67,7 @@ def main() -> int:
 
     write_csv(
         DATA / "news.csv",
-        unique[:60],
+        unique,
         ["published", "source", "title", "link", "category"],
     )
     print(f"news total={len(unique)}")
