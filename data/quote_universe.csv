@@ -13,7 +13,6 @@ symbol,name,asset_type,association_code,yahoo_ticker,reason
 1326,ＳＰＤＲゴールド・シェア,etf,,1326.T,ETF・ETN
 1328,ＮＥＸＴ　ＦＵＮＤＳ　金価格連動型上場投信,etf,,1328.T,ETF・ETN
 1329,ｉシェアーズ・コア　日経２２５　ＥＴＦ,etf,,1329.T,ETF・ETN
-132A,アイエヌホールディングス,stock,,132A.T,PRO Market
 1330,上場インデックスファンド２２５,etf,,1330.T,ETF・ETN
 1332,ニッスイ,stock,,1332.T,プライム（内国株式）
 1333,Ｕｍｉｏｓ,stock,,1333.T,プライム（内国株式）
@@ -1645,7 +1644,6 @@ symbol,name,asset_type,association_code,yahoo_ticker,reason
 417A,ブルーゾーンホールディングス,stock,,417A.T,プライム（内国株式）
 4180,Ａｐｐｉｅｒ　Ｇｒｏｕｐ,stock,,4180.T,プライム（内国株式）
 4182,三菱瓦斯化学,stock,,4182.T,プライム（内国株式）
-4183,三井化学,stock,,4183.T,プライム（内国株式）
 4186,東京応化工業,stock,,4186.T,プライム（内国株式）
 4187,大阪有機化学工業,stock,,4187.T,プライム（内国株式）
 4188,三菱ケミカルグループ,stock,,4188.T,プライム（内国株式）
@@ -2924,6 +2922,7 @@ symbol,name,asset_type,association_code,yahoo_ticker,reason
 6597,ＨＰＣシステムズ,stock,,6597.T,グロース（内国株式）
 6599,エブレン,stock,,6599.T,スタンダード（内国株式）
 659A,ｉＦｒｅｅＥＴＦ　先進国エネルギー上流企業株,etf,,659A.T,ETF・ETN
+660A,"RECEPTIONIST, Inc.",stock,,660A.T,yfinanceが列挙した東証銘柄
 6612,バルミューダ,stock,,6612.T,グロース（内国株式）
 6613,ＱＤレーザ,stock,,6613.T,グロース（内国株式）
 6614,シキノハイテック,stock,,6614.T,スタンダード（内国株式）
