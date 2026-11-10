@@ -13,6 +13,7 @@ SCRIPTS = [
     "fetch_fundamentals.py",
     "technical.py",
     "analyze.py",
+    "fetch_outlook.py",
     "rank_ideas.py",
     "fetch_idea_news.py",
     "build_site.py",

@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -17,6 +18,11 @@ PE_RICH = 40.0
 PBR_CHEAP = 1.0
 PBR_RICH = 5.0
 TOP_LIMIT = 30
+OUTLOOK_GAP = 0.05
+OUTLOOK_AGREE = 6.0
+MEDIUM_DATE = "2027-06"
+LONG_DATE = "2027-12"
+_MARKET_NAME = {"n225": "日経平均", "spx": "S&P500", "topix": "TOPIX"}
 
 FIELDS = [
     "as_of",
@@ -117,6 +123,83 @@ def _tech_score(tags: list[tuple[str, str, str]], change: float | None, tech: di
     return score
 
 
+def _stance(target: float | None, spot: float | None) -> tuple[str, float | None]:
+    if target is None or spot is None or spot <= 0:
+        return "", None
+    gap = target / spot - 1
+    if gap >= OUTLOOK_GAP:
+        return "強気", gap
+    if gap <= -OUTLOOK_GAP:
+        return "弱気", gap
+    return "中立", gap
+
+
+def _outlook_rows() -> list[dict]:
+    path = DATA / "market_outlook.csv"
+    if not path.exists():
+        return []
+    return read_csv(path)
+
+
+def _horizon(rows: list[dict], market: str, horizon: str) -> dict | None:
+    for row in rows:
+        if row.get("market") == market and row.get("horizon_date") == horizon and row.get("target") and row.get("spot"):
+            return row
+    return None
+
+
+def _overlay(medium: dict | None, long: dict | None, index_name: str) -> tuple[float, float, str]:
+    if medium is None or long is None:
+        return 0.0, 0.0, ""
+    medium_side, medium_gap = _stance(_present(medium.get("target")), _present(medium.get("spot")))
+    long_side, long_gap = _stance(_present(long.get("target")), _present(long.get("spot")))
+    if not medium_side or not long_side or medium_gap is None or long_gap is None:
+        return 0.0, 0.0, ""
+    note = (
+        f"{index_name}の中期{medium['horizon_date']}は{float(medium['target']):,.0f}"
+        f"（終値比{medium_gap * 100:+.1f}%）、"
+        f"長期{long['horizon_date']}は{float(long['target']):,.0f}"
+        f"（終値比{long_gap * 100:+.1f}%）"
+    )
+    if medium_side == long_side and medium_side in {"強気", "弱気"}:
+        points = OUTLOOK_AGREE
+        text = f"{note}で、どちらも{medium_side}"
+        if medium_side == "強気":
+            return points, 0.0, text
+        return 0.0, points, text
+    if medium_side != long_side and "中立" not in {medium_side, long_side}:
+        return 0.0, 0.0, note + "で、中期と長期が分かれた"
+    one = medium_side if medium_side in {"強気", "弱気"} else long_side
+    if one in {"強気", "弱気"}:
+        text = f"{note}で、{one}は片方だけ"
+        if one == "強気":
+            return OUTLOOK_AGREE / 2, 0.0, text
+        return 0.0, OUTLOOK_AGREE / 2, text
+    return 0.0, 0.0, note + "で、どちらも中立"
+
+
+def market_overlays() -> dict[str, tuple[float, float, str]]:
+    rows = _outlook_rows()
+    packs = {
+        "jp": _overlay(_horizon(rows, "n225", MEDIUM_DATE), _horizon(rows, "n225", LONG_DATE), "日経平均"),
+        "us": _overlay(_horizon(rows, "spx", MEDIUM_DATE), _horizon(rows, "spx", LONG_DATE), "S&P500"),
+    }
+    return packs
+
+
+def _region(symbol: str, ticker: str) -> str:
+    ticker = (ticker or "").strip()
+    if ticker.endswith(".T"):
+        return "jp"
+    if ticker and "." not in ticker:
+        return "us"
+    if re.fullmatch(r"[0-9A-Z]{4,5}", symbol or ""):
+        return "jp"
+    if re.fullmatch(r"[A-Za-z]{1,5}", symbol or ""):
+        return "us"
+    return ""
+
+
 def _decision(
     tags: list[tuple[str, str, str]],
     change: float | None,
@@ -125,6 +208,9 @@ def _decision(
     fund_sell: float,
     buy_notes: list[str],
     sell_notes: list[str],
+    market_buy: float = 0.0,
+    market_sell: float = 0.0,
+    market_note: str = "",
 ) -> tuple[str, float, str, str]:
     deciding = [tag for tag in tags if tag[2] in {"buy", "sell"}]
     tech_side = analyze.decide_action(deciding) if deciding else ""
@@ -134,36 +220,44 @@ def _decision(
     if same_side:
         sentence = analyze.signal_sentence(same_side, change if change is not None else 0.0, None, tech)
     tech_labels = " ".join(tag[1] for tag in same_side)
+    def _with_market(parts: list[str], same: float, opposite: float) -> None:
+        if not market_note:
+            return
+        if same > 0:
+            parts.append("同じ側の市場予報: " + market_note)
+        elif opposite > 0:
+            parts.append("逆材料でスコアを下げた: " + market_note)
+        else:
+            parts.append("市場予報はスコアを動かしていない: " + market_note)
+
     if tech_side == analyze.SIGNAL_BUY:
-        score = max(1.0, tech_score + fund_buy - fund_sell * 0.5)
+        score = max(1.0, tech_score + fund_buy + market_buy - (fund_sell + market_sell) * 0.5)
         parts = [f"テクニカルが買いを決定: {sentence}"]
         if buy_notes:
             parts.append("同じ側の材料: " + "、".join(buy_notes))
         if sell_notes:
             parts.append("逆材料でスコアを下げた: " + "、".join(sell_notes))
+        _with_market(parts, market_buy, market_sell)
         return analyze.SIGNAL_BUY, score, tech_labels, "。".join(parts)
     if tech_side == analyze.SIGNAL_SELL:
-        score = max(1.0, tech_score + fund_sell - fund_buy * 0.5)
+        score = max(1.0, tech_score + fund_sell + market_sell - (fund_buy + market_buy) * 0.5)
         parts = [f"テクニカルが売りを決定: {sentence}"]
         if sell_notes:
             parts.append("同じ側の材料: " + "、".join(sell_notes))
         if buy_notes:
             parts.append("逆材料でスコアを下げた: " + "、".join(buy_notes))
+        _with_market(parts, market_sell, market_buy)
         return analyze.SIGNAL_SELL, score, tech_labels, "。".join(parts)
     if fund_buy >= 8 and fund_sell == 0 and buy_notes:
-        return (
-            analyze.SIGNAL_BUY,
-            fund_buy,
-            "",
-            "ファンダメンタルが買いを決定: " + "、".join(buy_notes),
-        )
+        score = max(1.0, fund_buy + market_buy - market_sell * 0.5)
+        parts = ["ファンダメンタルが買いを決定: " + "、".join(buy_notes)]
+        _with_market(parts, market_buy, market_sell)
+        return analyze.SIGNAL_BUY, score, "", "。".join(parts)
     if fund_sell >= 8 and fund_buy == 0 and sell_notes:
-        return (
-            analyze.SIGNAL_SELL,
-            fund_sell,
-            "",
-            "ファンダメンタルが売りを決定: " + "、".join(sell_notes),
-        )
+        score = max(1.0, fund_sell + market_sell - market_buy * 0.5)
+        parts = ["ファンダメンタルが売りを決定: " + "、".join(sell_notes)]
+        _with_market(parts, market_sell, market_buy)
+        return analyze.SIGNAL_SELL, score, "", "。".join(parts)
     watched = [tag for tag in tags if tag[2] not in {"buy", "sell"}]
     looked: list[str] = []
     if watched:
@@ -180,11 +274,15 @@ def _decision(
 
 def build_symbol_analysis() -> list[dict]:
     as_of = now_jst().strftime("%Y-%m-%d %H:%M:%S%z")
-    names = {
-        row["symbol"]: row.get("name") or row["symbol"]
-        for row in read_csv(DATA / "quote_universe.csv")
-        if row.get("symbol")
-    }
+    universe = [row for row in read_csv(DATA / "quote_universe.csv") if row.get("symbol")]
+    names = {row["symbol"]: row.get("name") or row["symbol"] for row in universe}
+    tickers = {row["symbol"]: (row.get("yahoo_ticker") or "").strip() for row in universe}
+    for row in read_csv(DATA / "holdings.csv"):
+        symbol = (row.get("symbol") or "").strip()
+        ticker = (row.get("yahoo_ticker") or "").strip()
+        if symbol and ticker:
+            tickers.setdefault(symbol, ticker)
+    overlays = market_overlays()
     technical = {row["symbol"]: row for row in read_csv(DATA / "technical.csv") if row.get("symbol")}
     fundamentals = {row["symbol"]: row for row in read_csv(DATA / "fundamentals.csv") if row.get("symbol")}
     symbols = sorted(set(names) | set(technical) | set(fundamentals))
@@ -199,8 +297,19 @@ def build_symbol_analysis() -> list[dict]:
         # 前日比が無いときに 0% 扱いの押し目・急騰は付けない。representative_tags は
         # 0 をどちらの閾値にも掛けないので、このままで足りる。
         fund_buy, fund_sell, buy_notes, sell_notes = _fund_view(fund)
+        region = _region(symbol, tickers.get(symbol, ""))
+        market_buy, market_sell, market_note = overlays.get(region, (0.0, 0.0, ""))
         action, score, tech_labels, decision = _decision(
-            tags, change, signal_tech, fund_buy, fund_sell, buy_notes, sell_notes
+            tags,
+            change,
+            signal_tech,
+            fund_buy,
+            fund_sell,
+            buy_notes,
+            sell_notes,
+            market_buy,
+            market_sell,
+            market_note,
         )
         rsi = _present((tech or {}).get("rsi14"))
         if _flat_market(tech, change) and rsi is not None and (rsi <= analyze.RSI_LOW or rsi >= analyze.RSI_HIGH):

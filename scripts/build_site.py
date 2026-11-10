@@ -25,6 +25,7 @@ SUBPAGES = [
     ("cashflow.html", "資金スケジュール", "cashflow"),
 ]
 INDEX_SECTIONS = [
+    ("#overview", "概要"),
     ("#top-ideas", "売り買い候補"),
     ("#top-topics", "トピック"),
     ("#watch", "監視銘柄"),
@@ -1112,6 +1113,113 @@ def subpage_nav(current_href: str) -> str:
     return menubar("下層ページのメニュー", links, current_href)
 
 
+def _horizon_label(horizon: str) -> str:
+    if horizon == rank_ideas.MEDIUM_DATE:
+        return "中期"
+    if horizon == rank_ideas.LONG_DATE:
+        return "長期"
+    return "参考"
+
+
+def overview_section() -> str:
+    rows = [row for row in read_csv(DATA / "market_outlook.csv") if row.get("source")]
+    if not rows:
+        return (
+            '<section id="overview"><h2>概要</h2>'
+            "<p>公表された中長期の見通しは、今回は読めませんでした。</p></section>"
+        )
+    named = next((row for row in rows if row.get("target")), rows[0])
+    published = named.get("published") or ""
+    document = named.get("document_id") or ""
+    source = named.get("source") or ""
+    link = named.get("source_url") or ""
+    overlays = rank_ideas.market_overlays()
+    applied = [note for _buy, _sell, note in overlays.values() if note]
+    reading = ("今回の読み: " + "。".join(applied) + "。") if applied else "今回、売り買いに足し引きできる読みはありません。"
+    intro = (
+        f"{esc(source)}の主要指標の見通し"
+        + (f"（{esc(published)}" + (f"、{esc(document)}" if document else "") + "）" if published else "")
+        + "を集めています。"
+        f"中期は{rank_ideas.MEDIUM_DATE}、長期は{rank_ideas.LONG_DATE}です。"
+        f"終値との差が{rank_ideas.OUTLOOK_GAP * 100:.0f}%以上なら強気、"
+        f"{rank_ideas.OUTLOOK_GAP * 100:.0f}%以上下なら弱気です。"
+        f"中期と長期が同じ側のとき、日本株は日経平均、米国株はS&P500の側へスコアを{rank_ideas.OUTLOOK_AGREE:.0f}足し、"
+        "反対側の判定からは半分を引きます。片方だけその側なら3を足します。"
+        "予報だけでは売り買いは決めません。投信には掛けていません。"
+        + esc(reading)
+        + "投資助言ではありません。"
+    )
+    if link:
+        intro += f' 資料: <a class="news-link" href="{esc(link)}" target="_blank" rel="noopener">{esc(link)}</a>'
+    body = []
+    skipped = []
+    for row in rows:
+        if not row.get("target"):
+            note = row.get("note") or "見通しがなかった"
+            label = f"{row.get('source')} {row.get('market')}".strip()
+            skipped.append(f"{label}: {note}")
+            continue
+        target = _present_number(row.get("target"))
+        spot = _present_number(row.get("spot"))
+        side, gap = rank_ideas._stance(target, spot)
+        gap_text = f"{gap * 100:+.1f}%" if gap is not None else "—"
+        spot_text = f"{spot:,.2f}" if spot is not None else "—"
+        spot_date = row.get("spot_date") or ""
+        if spot_date:
+            spot_text += f"（{spot_date}）"
+        used = row.get("horizon_date") in {rank_ideas.MEDIUM_DATE, rank_ideas.LONG_DATE} and side and not row.get("note")
+        judge = side if used else (row.get("note") or "参考")
+        market_name = {"n225": "日経平均", "spx": "S&P500", "topix": "TOPIX"}.get(row.get("market") or "", row.get("market") or "")
+        body.append(
+            "<tr><td>"
+            + esc(market_name)
+            + "</td><td>"
+            + esc(_horizon_label(row.get("horizon_date") or ""))
+            + " "
+            + esc(row.get("horizon_date"))
+            + '</td><td class="num">'
+            + esc(f"{target:,.0f}" if target is not None else "—")
+            + '</td><td class="num">'
+            + esc(spot_text)
+            + '</td><td class="num">'
+            + esc(gap_text)
+            + "</td><td>"
+            + esc(judge)
+            + "</td></tr>"
+        )
+    table = (
+        '<div class="table-wrap"><table><thead><tr>'
+        "<th>市場</th><th>期間</th><th>見通し</th><th>終値</th><th>差</th><th>判定</th>"
+        "</tr></thead><tbody>"
+        + "".join(body)
+        + "</tbody></table></div>"
+    )
+    extra = ""
+    if skipped:
+        extra = "<p>" + esc("。".join(dict.fromkeys(skipped))) + "。</p>"
+    return (
+        '<section id="overview"><h2>概要</h2><p>'
+        + intro
+        + "</p>"
+        + table
+        + extra
+        + "</section>"
+    )
+
+
+def _present_number(value: object) -> float | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        number = float(text)
+    except ValueError:
+        return None
+    if number != number:
+        return None
+    return number
+
+
 def index_body(
     catalog: list[dict],
     holdings: list[dict],
@@ -1142,6 +1250,7 @@ def index_body(
     charts = '<section id="holdings"><h2>保有の内訳</h2>' + chart_nav + charts_html() + "</section>"
     return (
         page_nav
+        + overview_section()
         + top
         + market_section(market, holdings, accums, cash_rows)
         + charts
@@ -1371,6 +1480,7 @@ def _rule_text() -> str:
         f"ファンダメンタルは取得できた実績だけを使い、PER{rank_ideas.PE_CHEAP:.0f}倍以下かPBR{rank_ideas.PBR_CHEAP:.0f}倍以下で買い、"
         f"PER{rank_ideas.PE_RICH:.0f}倍以上かPBR{rank_ideas.PBR_RICH:.0f}倍以上、またはEPSの赤字で売りです。"
         "終値が横ばいで移動平均も重なっているときは、RSIが極端でも売り買いの決定には使いません。"
+        "市場の中長期予報は、中期と長期が同じ側のときだけスコアを足し引きします。予報だけでは売り買いは決めません。"
         "返ってこなかった項目は出していません。投資助言ではありません。"
     )
 
@@ -1515,6 +1625,7 @@ def analysis_page(rows: list[dict]) -> str:
     return (
         '<section class="guide">'
         + subpage_nav("analysis.html")
+        + overview_section()
         + "<h2>指標の意味</h2>"
         + taken
         + '<p class="muted">売り買いは、取得できた終値と実績の数字だけで決めています。'
