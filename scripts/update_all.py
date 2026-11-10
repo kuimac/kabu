@@ -14,6 +14,7 @@ SCRIPTS = [
     "technical.py",
     "analyze.py",
     "rank_ideas.py",
+    "fetch_idea_news.py",
     "build_site.py",
 ]
 

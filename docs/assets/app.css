@@ -121,6 +121,28 @@ section > h2 {
 }
 .guide p { line-height: 1.7; }
 .guide td:last-child { overflow-wrap: anywhere; }
+.idea-news { margin: 0.45rem 0 0; line-height: 1.55; }
+.news-link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 720px) {
+  .guide-rank { overflow: visible; border: 0; background: transparent; }
+  .guide-rank table { min-width: 0; display: block; }
+  .guide-rank thead { display: none; }
+  .guide-rank tbody { display: grid; gap: 0.7rem; }
+  .guide-rank tr {
+    display: block;
+    padding: 0.85rem 0.95rem;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(23, 48, 43, 0.78);
+  }
+  .guide-rank td { display: block; padding: 0.12rem 0; border: 0; }
+  .guide-rank td.num { text-align: left; }
+}
 
 .hero-topics {
   margin-top: 1.75rem;

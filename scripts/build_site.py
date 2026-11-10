@@ -1431,9 +1431,45 @@ def analysis_html(row: dict | None) -> str:
     return tech + '<div class="chart-card"><h3>ファンダメンタル</h3>' + fund_body + "</div>"
 
 
+def idea_news_by_symbol() -> dict[str, dict]:
+    found: dict[str, dict] = {}
+    for row in read_csv(DATA / "idea_news.csv"):
+        symbol = (row.get("symbol") or "").strip()
+        if symbol and row.get("title") and row.get("link") and symbol not in found:
+            found[symbol] = row
+    return found
+
+
+def _news_clock(raw: str) -> str:
+    text = (raw or "").strip()
+    if "T" in text and len(text) >= 16:
+        return text[:10] + " " + text[11:16] + " JST"
+    if len(text) >= 16:
+        return text[:16] + " JST"
+    return ""
+
+
+def idea_news_html(symbol: str, news: dict[str, dict]) -> str:
+    row = news.get(symbol or "")
+    if not row:
+        return '<p class="idea-news muted">今回の検索では、この銘柄のニュースは見つかりませんでした。</p>'
+    when = _news_clock(row.get("published") or "")
+    meta = "株探" + (f" · {when}" if when else "")
+    return (
+        '<p class="idea-news"><a class="news-link" href="'
+        + esc(row.get("link") or "")
+        + '" target="_blank" rel="noopener">'
+        + esc(row.get("title"))
+        + '</a><br><span class="muted">'
+        + esc(meta)
+        + "</span></p>"
+    )
+
+
 def analysis_page(rows: list[dict]) -> str:
     picked = [row for row in rows if str(row.get("rank") or "").strip()]
     picked.sort(key=lambda row: int(row["rank"]))
+    news = idea_news_by_symbol()
     body: list[str] = []
     for row in picked:
         change = row.get("change_pct") or ""
@@ -1457,10 +1493,11 @@ def analysis_page(rows: list[dict]) -> str:
             + change_html
             + "</td><td>"
             + esc(row.get("decision"))
+            + idea_news_html(row.get("symbol") or "", news)
             + "</td></tr>"
         )
     table = (
-        '<div class="table-wrap"><table><thead><tr>'
+        '<div class="table-wrap guide-rank"><table><thead><tr>'
         "<th>順</th><th>銘柄</th><th>判定</th><th>終値</th><th>前日比</th><th>解説</th>"
         "</tr></thead><tbody>"
         + "".join(body)
@@ -1512,7 +1549,8 @@ def analysis_page(rows: list[dict]) -> str:
         "テクニカルが無いときは、「ファンダメンタルが買いを決定」または「ファンダメンタルが売りを決定」と書きます。"
         "順位は、テクニカルの強さに同じ側の材料を足し、逆側の材料を半分だけ引いた大きさです。</p>"
         + "<h2>今回の強い30件</h2>"
-        + '<p class="muted">トップの売り買い候補と同じ30件です。名前から個別ページの数値へ移動できます。</p>'
+        + '<p class="muted">トップの売り買い候補と同じ30件です。名前から個別ページの数値へ移動できます。'
+        "各行の下は、株探でその銘柄を検索した最新のニュースです。売り買いの判定には使っていません。</p>"
         + table
         + "</section>"
     )
@@ -1521,6 +1559,7 @@ def analysis_page(rows: list[dict]) -> str:
 def ideas_block(rows: list[dict], fold: int) -> str:
     picked = [row for row in rows if str(row.get("rank") or "").strip()]
     picked.sort(key=lambda row: int(row["rank"]))
+    news = idea_news_by_symbol()
     cards: list[str] = []
     for index, row in enumerate(picked):
         change = to_float(row.get("change_pct"))
@@ -1543,14 +1582,17 @@ def ideas_block(rows: list[dict], fold: int) -> str:
             + change_html
             + "</p><p>"
             + esc(row.get("decision"))
-            + "</p></article>"
+            + "</p>"
+            + idea_news_html(row.get("symbol") or "", news)
+            + "</article>"
         )
     intro = (
         '<p class="muted">取扱銘柄を今回取得した終値とファンダメンタルで見て、'
         "買いまたは売りが決まったもののうち強い30件です。はじめの5件を開き、残りは折りたたみます。"
         + _rule_text()
         + "テクニカルが点いたときはそちらが売り買いを決め、ファンダメンタルは強さを足し引きするだけです。"
-        '指標の意味と、この30件の解説は <a class="text-link" href="analysis.html">分析指標</a> にまとめています。</p>'
+        '指標の意味と、この30件の解説は <a class="text-link" href="analysis.html">分析指標</a> にまとめています。'
+        "カードのリンクは株探の最新ニュースで、判定には使っていません。</p>"
     )
     inner = '<div class="idea-list">' + "".join(cards) + "</div>" if cards else "<p>今回の取得では買い・売りが決まった銘柄がありません。</p>"
     return panel("top-ideas", "売り買い候補", "", intro, inner, len(cards), fold, None)
