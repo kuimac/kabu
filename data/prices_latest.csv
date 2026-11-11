@@ -1,26 +1,26 @@
 symbol,name,price,currency,as_of,source,change,change_pct
-slim_dev,eMAXIS Slim 先進国株式インデックス(除く日本),44851.0000,USD,2026-11-11,mufg_api,56,0.13
-slim_sp500,eMAXIS Slim 米国株式(S&P500),44038.0000,USD,2026-11-11,mufg_api,37,0.08
-nissei_ai,ニッセイAI関連株式ファンド(為替ヘッジなし),69177.0000,USD,2026-11-10,yahoo_scrape,+2776,+4.18
-daiwa_india,ダイワ・ダイナミック・インド株式ファンド,10424.0000,USD,2026-11-10,yahoo_scrape,+57,+0.55
-slim_acwi,eMAXIS Slim 全世界株式(オール・カントリー),37279.0000,USD,2026-11-11,mufg_api,136,0.37
+slim_dev,eMAXIS Slim 先進国株式インデックス(除く日本),44851.0000,USD,2026-11-11,yahoo_scrape,+56,+0.13
+slim_sp500,eMAXIS Slim 米国株式(S&P500),44038.0000,USD,2026-11-11,yahoo_scrape,+37,+0.08
+nissei_ai,ニッセイAI関連株式ファンド(為替ヘッジなし),69050.0000,USD,2026-11-11,yahoo_scrape,-127,-0.18
+daiwa_india,ダイワ・ダイナミック・インド株式ファンド,10507.0000,USD,2026-11-11,yahoo_scrape,+83,+0.80
+slim_acwi,eMAXIS Slim 全世界株式(オール・カントリー),37279.0000,USD,2026-11-11,yahoo_scrape,+136,+0.37
 ihi,IHI,2471.0000,JPY,2026-11-11,yfinance,21.5000,0.88
-nvda,エヌビディア,168.8900,USD,2026-11-10,yfinance,-9.7800,-5.47
+nvda,エヌビディア,173.8197,USD,2026-11-11,yfinance,4.9297,2.92
 4183,三井化学,1726.5000,JPY,2026-11-11,yfinance,28.5000,1.68
 1306,TOPIX連動型上場投資信託,413.9000,JPY,2026-11-11,yfinance,3.4000,0.83
 2558,MAXISワールド株式(オール・カントリー)上場投信,3465.0000,JPY,2026-11-11,yfinance,19.0000,0.55
 1540,純金上場信託(現物国内保管型),19300.0000,JPY,2026-11-11,yfinance,-255.0000,-1.30
-spy,SPDR S&P 500 ETF Trust,749.9200,USD,2026-11-10,yfinance,-2.7700,-0.37
-qqq,Invesco QQQ Trust,674.7600,USD,2026-11-10,yfinance,-4.5900,-0.68
+spy,SPDR S&P 500 ETF Trust,756.2100,USD,2026-11-11,yfinance,6.2900,0.84
+qqq,Invesco QQQ Trust,686.1200,USD,2026-11-11,yfinance,11.3600,1.68
 n225,日経平均,61248.5898,JPY,2026-11-11,yfinance,789.0117,1.31
 nikkei225,NEXT FUNDS 日経225連動型上場投信,638.4000,JPY,2026-11-11,yfinance,8.6000,1.37
 ishares_sp500,iシェアーズ S&P 500 米国株 ETF,866.9000,JPY,2026-11-11,yfinance,3.8000,0.44
 maxis_ndx,MAXISナスダック100上場投信,31990.0000,JPY,2026-11-11,yfinance,400.0000,1.27
 reit,NEXT FUNDS 東証REIT指数連動型上場投信,1763.5000,JPY,2026-11-11,yfinance,-9.5000,-0.54
 nifty,NEXT FUNDS インド株式指数・Nifty 50連動型上場投信,331.8000,JPY,2026-11-11,yfinance,-0.2000,-0.06
-vt,バンガード・トータル・ワールド・ストックETF,154.9400,USD,2026-11-10,yfinance,-0.7400,-0.48
-voo,バンガード・S&P500 ETF,689.5000,USD,2026-11-10,yfinance,-2.3700,-0.34
-gld,SPDRゴールド・シェア,369.3600,USD,2026-11-10,yfinance,-10.1700,-2.68
+vt,バンガード・トータル・ワールド・ストックETF,156.0100,USD,2026-11-11,yfinance,1.0700,0.69
+voo,バンガード・S&P500 ETF,695.1300,USD,2026-11-11,yfinance,5.6300,0.82
+gld,SPDRゴールド・シェア,368.5200,USD,2026-11-11,yfinance,-0.8400,-0.23
 1301,極洋,4485.0000,JPY,2026-11-11,yfinance,35.0000,0.79
 1305,ｉＦｒｅｅＥＴＦ　ＴＯＰＩＸ（年１回決算型）,4180.0000,JPY,2026-11-11,yfinance,36.0000,0.87
 1308,上場インデックスファンドＴＯＰＩＸ,4090.0000,JPY,2026-11-11,yfinance,31.0000,0.76
@@ -4410,4 +4410,4 @@ gld,SPDRゴールド・シェア,369.3600,USD,2026-11-10,yfinance,-10.1700,-2.68
 9994,やまや,1879.0000,JPY,2026-11-11,yfinance,-12.0000,-0.63
 9996,サトー商会,1990.0000,JPY,2026-11-11,yfinance,-14.0000,-0.70
 9997,ベルーナ,1060.0000,JPY,2026-11-11,yfinance,-11.0000,-1.03
-USDJPY,米ドル円,158.9660,JPY,2026-11-11,yfinance,,
+USDJPY,米ドル円,159.6490,JPY,2026-11-11,yfinance,,
