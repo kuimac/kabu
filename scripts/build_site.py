@@ -16,6 +16,7 @@ PREVIEW_LIMIT = 5
 ATTR_ORDER = ["国内投信", "国内株", "東証外国株", "国内REIT", "米国株", "国内ETF", "米国ETF", "指数"]
 BUY_KINDS = {"買付", "買い", "buy"}
 SUBPAGES = [
+    ("news.html", "ニュース", "news"),
     ("analysis.html", "分析指標", "analysis"),
     ("quotes.html", "取得銘柄", "quotes"),
     ("instruments.html", "銘柄一覧", "instruments"),
@@ -696,6 +697,101 @@ def trades_block(trades: list[dict], fold: int, panel_id: str, more_href: str) -
     )
 
 
+def _blank(value: str) -> str:
+    text = (value or "").strip()
+    return esc(text) if text else '<span class="muted">—</span>'
+
+
+def news_time_html(raw: str) -> str:
+    text = (raw or "").strip()
+    if not text:
+        return '<span class="muted">未記録</span>'
+    visible = _news_clock(text) or text
+    return f'<time datetime="{esc(text)}">{esc(visible)}</time>'
+
+
+def collected_news() -> list[dict]:
+    """news.csv と、サイトが既に出している株探の見出し。空の見出しは出さない。"""
+    items: list[dict] = []
+    seen: set[tuple[str, str]] = set()
+
+    def add(published: str, source: str, title: str, link: str) -> None:
+        headline = (title or "").strip()
+        if not headline:
+            return
+        url = (link or "").strip()
+        key = (headline, url)
+        if key in seen:
+            return
+        seen.add(key)
+        items.append(
+            {
+                "published": (published or "").strip(),
+                "source": (source or "").strip(),
+                "title": headline,
+                "link": url,
+            }
+        )
+
+    for row in read_csv(DATA / "news.csv"):
+        add(row.get("published") or "", row.get("source") or "", row.get("title") or "", row.get("link") or "")
+    for row in read_csv(DATA / "idea_news.csv"):
+        add(row.get("published") or "", row.get("source") or "", row.get("title") or "", row.get("link") or "")
+    items.sort(key=lambda item: item["published"], reverse=True)
+    return items
+
+
+def news_page(items: list[dict]) -> str:
+    rows: list[str] = []
+    for item in items:
+        link = item["link"]
+        if link:
+            headline = (
+                '<a class="news-link" href="'
+                + esc(link)
+                + '" target="_blank" rel="noopener">'
+                + esc(item["title"])
+                + "</a>"
+            )
+            link_html = (
+                '<a class="news-link" href="'
+                + esc(link)
+                + '" target="_blank" rel="noopener">'
+                + esc(link)
+                + "</a>"
+            )
+        else:
+            headline = esc(item["title"])
+            link_html = '<span class="muted">—</span>'
+        rows.append(
+            "<tr><td>"
+            + news_time_html(item["published"])
+            + "</td><td>"
+            + _blank(item["source"])
+            + "</td><td>"
+            + headline
+            + "</td><td>"
+            + link_html
+            + "</td></tr>"
+        )
+    if rows:
+        table = (
+            '<div class="table-wrap news-table"><table><thead><tr>'
+            "<th>日時</th><th>ソース</th><th>見出し</th><th>リンク</th>"
+            "</tr></thead><tbody>"
+            + "".join(rows)
+            + "</tbody></table></div>"
+        )
+    else:
+        table = "<p>収集済みのニュースはありません。</p>"
+    intro = (
+        '<p class="muted">収集済みのニュース '
+        + str(len(items))
+        + "件です。新しい順に、日時・ソース・見出し・リンクを同じページへ出しています。</p>"
+    )
+    return "<section>" + subpage_nav("news.html") + intro + table + "</section>"
+
+
 def topic_cards(signals: list[dict], news: list[dict]) -> list[str]:
     urgent = [row for row in signals if row.get("priority") == "high"]
     medium = [row for row in signals if row.get("priority") == "medium"]
@@ -787,8 +883,12 @@ def topics_block(signals: list[dict], news: list[dict], market: list[dict], fold
         topics = '<div class="topics-grid">' + "".join(wrapped) + "</div>"
         count = len(cards)
     urgent_count = len([row for row in signals if row.get("priority") == "high"])
-    intro = '<p class="muted">緊急シグナル ' + str(urgent_count) + "件</p>"
-    return panel("top-topics", "本日のトピック", "", intro, quotes + topics, count, fold, None)
+    intro = (
+        '<p class="muted">緊急シグナル '
+        + str(urgent_count)
+        + '件。収集済みの見出しは <a class="text-link" href="news.html">ニュース一覧</a> です。</p>'
+    )
+    return panel("top-topics", "本日のトピック", "news.html", intro, quotes + topics, count, fold, None)
 
 
 def signal_rank_table(rows: list[dict], side: str, fold: int) -> str:
@@ -1901,6 +2001,13 @@ def main(symbols: bool = True) -> int:
             None,
         ),
     }
+    pages["news.html"] = layout(
+        "ニュース一覧",
+        "news",
+        news_page(collected_news()),
+        updated,
+        None,
+    )
     quote_rows = fetched_quotes(catalog, prices)
     pages["quotes.html"] = layout(
         "取得銘柄",

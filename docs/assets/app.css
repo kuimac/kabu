@@ -254,6 +254,35 @@ section > h2 {
   border-radius: 14px;
   background: rgba(15, 28, 26, 0.55);
 }
+.news-table td:nth-child(3),
+.news-table td:nth-child(4) {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 720px) {
+  .news-table { overflow: visible; border: 0; background: transparent; }
+  .news-table table { min-width: 0; display: block; }
+  .news-table thead { display: none; }
+  .news-table tbody { display: grid; gap: 0.7rem; }
+  .news-table tr {
+    display: block;
+    padding: 0.85rem 0.95rem;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(23, 48, 43, 0.78);
+  }
+  .news-table td { display: block; padding: 0.12rem 0; border: 0; }
+  .news-table td::before {
+    display: block;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .news-table td:nth-child(1)::before { content: "日時"; }
+  .news-table td:nth-child(2)::before { content: "ソース"; }
+  .news-table td:nth-child(3)::before { content: "見出し"; }
+  .news-table td:nth-child(4)::before { content: "リンク"; }
+}
 table {
   width: 100%;
   border-collapse: collapse;
