@@ -2943,7 +2943,7 @@ symbol,name,asset_type,association_code,yahoo_ticker,reason
 6635,大日光・エンジニアリング,stock,,6635.T,スタンダード（内国株式）
 6637,寺崎電気産業,stock,,6637.T,スタンダード（内国株式）
 6638,ミマキエンジニアリング,stock,,6638.T,プライム（内国株式）
-663A,Iglobe inc,stock,,663A.T,yfinanceが列挙した東証銘柄
+663A,iglobe inc.,stock,,663A.T,yfinanceが列挙した東証銘柄
 6643,戸上電機製作所,stock,,6643.T,スタンダード（内国株式）
 6644,大崎電気工業,stock,,6644.T,プライム（内国株式）
 6645,オムロン,stock,,6645.T,プライム（内国株式）
