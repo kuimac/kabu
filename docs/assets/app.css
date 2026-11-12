@@ -424,7 +424,7 @@ section {
   font-size: 1rem;
 }
 .chart-card h3 { margin: 0 0 0.75rem; font-size: 1rem; }
-.chart-card canvas { width: 100% !important; max-height: 280px; }
+.chart-card canvas { width: 100% !important; max-height: 320px; }
 
 .site-footer {
   margin-top: 3rem;

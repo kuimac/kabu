@@ -68,24 +68,92 @@
     });
   }
 
+  function movingAverage(values, length) {
+    var out = [];
+    var sum = 0;
+    for (var i = 0; i < values.length; i++) {
+      var value = Number(values[i]);
+      if (!isFinite(value)) {
+        out.push(null);
+        continue;
+      }
+      sum += value;
+      if (i >= length) {
+        var dropped = Number(values[i - length]);
+        if (isFinite(dropped)) sum -= dropped;
+      }
+      out.push(i >= length - 1 ? sum / length : null);
+    }
+    return out;
+  }
+
+  function hasNumber(values) {
+    for (var i = 0; i < values.length; i++) {
+      if (values[i] != null && isFinite(values[i])) return true;
+    }
+    return false;
+  }
+
   var priceCanvas = document.getElementById("priceChart");
-  if (priceCanvas && data.priceLabels) {
+  if (priceCanvas && data.priceLabels && data.priceValues) {
+    var averages = [
+      { label: "5日", length: 5, color: "#f0c35a" },
+      { label: "25日", length: 25, color: "#6ec6ff" },
+      { label: "75日", length: 75, color: "#ff9f7a" },
+      { label: "200日", length: 200, color: "#b7a0ff" }
+    ];
+    var drewAverage = false;
+    var datasets = [{
+      label: "終値",
+      data: data.priceValues,
+      borderColor: accent,
+      backgroundColor: "rgba(62, 207, 142, 0.16)",
+      pointBackgroundColor: accent,
+      pointRadius: data.priceLabels.length > 60 ? 0 : 4,
+      tension: 0.15,
+      fill: true
+    }];
+    averages.forEach(function (item) {
+      var series = movingAverage(data.priceValues, item.length);
+      if (!hasNumber(series)) return;
+      drewAverage = true;
+      datasets.push({
+        label: item.label,
+        data: series,
+        borderColor: item.color,
+        backgroundColor: "transparent",
+        pointRadius: 0,
+        borderWidth: 1.5,
+        tension: 0,
+        fill: false,
+        spanGaps: false
+      });
+    });
+    var card = priceCanvas.closest(".chart-card");
+    if (card && drewAverage) {
+      var heading = card.querySelector("h3");
+      if (heading && heading.textContent.indexOf("移動平均") === -1) {
+        heading.textContent = heading.textContent + "と移動平均";
+      }
+      var note = card.querySelector("p.muted");
+      if (note && note.textContent.indexOf("75日・200日") === -1) {
+        note.textContent += " 5日・25日・75日・200日の移動平均は、保存済みの日次終値から計算しています。";
+      }
+    }
     new Chart(priceCanvas, {
       type: "line",
       data: {
         labels: data.priceLabels,
-        datasets: [{
-          data: data.priceValues,
-          borderColor: accent,
-          backgroundColor: "rgba(62, 207, 142, 0.16)",
-          pointBackgroundColor: accent,
-          pointRadius: data.priceLabels.length > 60 ? 0 : 4,
-          tension: 0.15,
-          fill: true
-        }]
+        datasets: datasets
       },
       options: {
-        plugins: { legend: { display: false } },
+        plugins: {
+          legend: {
+            display: true,
+            position: "bottom",
+            labels: { boxWidth: 12, color: ink }
+          }
+        },
         scales: {
           x: {
             title: { display: true, text: "記録日", color: muted },

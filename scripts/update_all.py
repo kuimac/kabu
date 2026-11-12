@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = [
     "fetch_market.py",
     "fetch_prices.py",
+    "fetch_history.py",
     "fetch_news.py",
     "fetch_fundamentals.py",
     "technical.py",

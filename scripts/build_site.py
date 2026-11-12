@@ -1862,6 +1862,14 @@ def symbol_page(row: dict, history: list[dict], prefix: str, analysis: dict | No
         "priceLabels": [point.get("date") or "" for point in points],
         "priceValues": [to_float(point.get("price")) for point in points],
     }
+    ma_note = (
+        "5日・25日・75日・200日の移動平均は、保存済みの日次終値から計算しています。"
+        if len(points) >= 5
+        else ""
+    )
+    chart_title = "過去5年の終値" if summary else "記録した価格"
+    if ma_note:
+        chart_title += "と移動平均"
     nav = menubar(
         "銘柄のメニュー",
         [(f"{prefix}quotes.html", "取得銘柄"), (f"{prefix}index.html#top", "トップ")],
@@ -1891,14 +1899,16 @@ def symbol_page(row: dict, history: list[dict], prefix: str, analysis: dict | No
         + summary_html
         + analysis_html(analysis)
         + '<div class="chart-card"><h3>'
-        + ("過去5年の終値" if summary else "記録した価格")
+        + chart_title
         + "</h3>"
         '<canvas id="priceChart"></canvas>'
         '<p class="muted">'
         + (
-            "横軸は日次の終値です。上場が5年未満の銘柄は、取得できた期間を描きます。下の表は月末の終値です。"
+            "横軸は日次の終値です。"
+            + ma_note
+            + "上場が5年未満の銘柄は、取得できた期間を描きます。下の表は月末の終値です。"
             if monthly
-            else "横軸は記録した終値です。"
+            else "横軸は記録した終値です。" + ma_note
         )
         + "</p></div>"
         + '<div class="table-wrap"><table><thead><tr><th>'
