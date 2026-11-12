@@ -2960,7 +2960,7 @@ symbol,name,asset_type,association_code,yahoo_ticker,reason
 6656,インスペック,stock,,6656.T,スタンダード（内国株式）
 6658,シライ電子工業,stock,,6658.T,スタンダード（内国株式）
 6659,メディアリンクス,stock,,6659.T,スタンダード（内国株式）
-665A,Daiwa Asset Management Co. Ltd. - IFreeETF Japan Progressive High Dividend Strategy Fund,etf,,665A.T,yfinanceが列挙した東証銘柄
+665A,iFreeETF Japan Progressive High Dividend Strategy,etf,,665A.T,yfinanceが列挙した東証銘柄
 6662,ユビテック,stock,,6662.T,スタンダード（内国株式）
 6663,太洋テクノレックス,stock,,6663.T,スタンダード（内国株式）
 6664,オプトエレクトロニクス,stock,,6664.T,スタンダード（内国株式）
