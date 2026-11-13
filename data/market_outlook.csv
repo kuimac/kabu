@@ -1,14 +1,14 @@
 as_of,source,source_url,published,document_id,market,horizon_date,target,spot,spot_date,spot_source,note
-2026-11-13 01:10:12+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,n225,2026-12,62000,61248.59,2026-11-11,yfinance,
-2026-11-13 01:10:12+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,n225,2027-03,63500,61248.59,2026-11-11,yfinance,
-2026-11-13 01:10:12+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,n225,2027-06,65000,61248.59,2026-11-11,yfinance,
-2026-11-13 01:10:12+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,n225,2027-12,66000,61248.59,2026-11-11,yfinance,
-2026-11-13 01:10:12+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,topix,2026-12,4000,,,,終値が取れなかったので判定に使わない
-2026-11-13 01:10:12+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,topix,2027-03,4100,,,,終値が取れなかったので判定に使わない
-2026-11-13 01:10:12+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,topix,2027-06,4200,,,,終値が取れなかったので判定に使わない
-2026-11-13 01:10:12+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,topix,2027-12,4400,,,,終値が取れなかったので判定に使わない
-2026-11-13 01:10:12+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,spx,2026-12,7600,7641.92,2026-11-12,yfinance,
-2026-11-13 01:10:12+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,spx,2027-03,7700,7641.92,2026-11-12,yfinance,
-2026-11-13 01:10:12+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,spx,2027-06,8000,7641.92,2026-11-12,yfinance,
-2026-11-13 01:10:12+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,spx,2027-12,8300,7641.92,2026-11-12,yfinance,
-2026-11-13 01:10:12+0900,Yahoo Finance,,,,,,,,,yfinance,指数の目標値がなかったので使わない
+2026-11-13 10:48:44+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,n225,2026-12,62000,61860.99,2026-11-13,yfinance,
+2026-11-13 10:48:44+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,n225,2027-03,63500,61860.99,2026-11-13,yfinance,
+2026-11-13 10:48:44+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,n225,2027-06,65000,61860.99,2026-11-13,yfinance,
+2026-11-13 10:48:44+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,n225,2027-12,66000,61860.99,2026-11-13,yfinance,
+2026-11-13 10:48:44+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,topix,2026-12,4000,,,,終値が取れなかったので判定に使わない
+2026-11-13 10:48:44+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,topix,2027-03,4100,,,,終値が取れなかったので判定に使わない
+2026-11-13 10:48:44+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,topix,2027-06,4200,,,,終値が取れなかったので判定に使わない
+2026-11-13 10:48:44+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,topix,2027-12,4400,,,,終値が取れなかったので判定に使わない
+2026-11-13 10:48:44+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,spx,2026-12,7600,7592.40,2026-11-12,yfinance,
+2026-11-13 10:48:44+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,spx,2027-03,7700,7592.40,2026-11-12,yfinance,
+2026-11-13 10:48:44+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,spx,2027-06,8000,7592.40,2026-11-12,yfinance,
+2026-11-13 10:48:44+0900,野村證券,https://www.nomura.co.jp/market/research/pdf/indices.pdf,2026-11-11,MZ014,spx,2027-12,8300,7592.40,2026-11-12,yfinance,
+2026-11-13 10:48:44+0900,Yahoo Finance,,,,,,,,,yfinance,指数の目標値がなかったので使わない

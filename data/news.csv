@@ -1,4 +1,5 @@
 published,source,title,link,category
+2026-11-13T09:00:00+09:00,JPXマーケットニュース,[OSE]国債先物における受渡適格銘柄及び交換比率一覧表の更新,https://www.jpx.co.jp/derivatives/products/jgb/jgb-futures/02.html,markets_news
 2026-11-12T18:10:00+09:00,JPXマーケットニュース,[東証]監理銘柄（確認中）の指定：（株）森組,https://www.jpx.co.jp/news/1023/20261112-11.html,markets_news
 2026-11-12T16:00:00+09:00,JPXマーケットニュース,[東証]新規上場の承認（グロース市場）：（株）FOLIOホールディングス,https://www.jpx.co.jp/listing/stocks/new/index.html,markets_news
 2026-11-12T16:00:00+09:00,JPXマーケットニュース,[東証]新規上場の承認（グロース市場）：スマートニュース（株）,https://www.jpx.co.jp/listing/stocks/new/index.html,markets_news
@@ -29,8 +30,55 @@ published,source,title,link,category
 2026-11-06T15:45:00+09:00,JPXマーケットニュース,[東証]制限値幅の拡大：1銘柄,https://www.jpx.co.jp/news/1030/20261106-01.html,markets_news
 2026-11-06T15:45:00+09:00,JPXマーケットニュース,[東証]制限値幅の拡大（ETF/ETN）：1銘柄,https://www.jpx.co.jp/news/1030/20261106-02.html,markets_news
 2026-11-06T15:40:00+09:00,JPXマーケットニュース,[東証]上場廃止等の決定：サツドラホールディングス（株）,https://www.jpx.co.jp/news/1023/20261106-11.html,markets_news
-2026-11-05T16:30:00+09:00,JPXマーケットニュース,[OSE]有価証券オプションの取扱い（2026年11月19日調整分）,https://www.jpx.co.jp/news/2020/20261105-01.html,markets_news
-2026-11-05T16:00:00+09:00,JPXマーケットニュース,[OSE]国債証券先物取引に係る取引最終日から受渡決済期日までの期間の短縮に伴う取引最終日の変更に伴う留意事項について,https://www.jpx.co.jp/news/2040/20261105-01.html,markets_news
-2026-11-05T13:00:00+09:00,JPXマーケットニュース,[東証]新規上場日の初値決定前の気配運用について：（株）estie,https://www.jpx.co.jp/news/1031/20261105_01.html,markets_news
-2026-11-05T10:00:00+09:00,JPXニュース,[JPX総研]株式会社スマートラウンドへの出資について,https://www.jpx.co.jp/corporate/news/news-releases/6020/20261105-01.html,jpx-news
-2026-11-05T00:00:00+09:00,JPXニュース,[JPX]CEO記者会見（2026年10月27日開催）要旨の掲載について,https://www.jpx.co.jp/corporate/news/news-releases/0063/20261105-11.html,jpx-news
+,みんかぶ,＜注目銘柄＞＝タスキＨＤ、好業績・高配当の不動産関連株,https://minkabu.jp/news/4661534,minkabu
+,株探,高成長企業を追う！ 26年7-9月期【増収増益】リスト ＜成長株特集＞ 11月12日版,https://kabutan.jp/news/marketnews/?b=n202611121238,kabutan
+,株探,需給の壺―ファンドの需給①―【若桑カズヲの株探ゼミナール】,https://kabutan.jp/news/marketnews/?b=n202611130565,kabutan
+,株探,超高齢社会進展で追い風強烈、DXで激変する「終活ビジネス」関連株 ＜株探トップ特集＞,https://kabutan.jp/news/marketnews/?b=n202611121250,kabutan
+,株探,話題株先取り【寄り付き】（1）：パークシャ、日本マイクロ、日証金など,https://kabutan.jp/news/marketnews/?b=n202611130489,kabutan
+,みんかぶ,東京為替：ドル・円はじり高、一時159円94銭付近に上昇,https://minkabu.jp/news/4661591,minkabu
+,みんかぶ,東京株式（大引け）＝７８９円高、ＡＩ関連中心にリスクオフの巻き...,https://minkabu.jp/news/4658632,minkabu
+,みんかぶ,東京株式（大引け）＝４２９円安、エヌビディア巡る不安で半導体株に売り,https://minkabu.jp/news/4661054,minkabu
+,みんかぶ,来週の決算発表予定 リクルート、三菱ＵＦＪ、ＳＢＧなど (11...,https://minkabu.jp/news/4653247,minkabu
+,みんかぶ,来週の株式相場に向けて＝日経平均は史上３番目の下落幅、反データ...,https://minkabu.jp/news/4653591,minkabu
+,みんかぶ,来週の主なマーケットイベント,https://minkabu.jp/news/4653288,minkabu
+,株探,本日の決算発表予定 … 三菱ＵＦＪ、みずほＦＧ、三井住友ＦＧなど 783社 (11月13日),https://kabutan.jp/news/marketnews/?b=n202611130086,kabutan
+,みんかぶ,時価総額「倍増」狙い欧米攻略も模索　学研ＨＤ　宮原博昭社長に聞く,https://minkabu.jp/news/4448470,minkabu
+,みんかぶ,明日の株式相場に向けて＝ファンＣＥＯ退任後の世界を織り込みはじ...,https://minkabu.jp/news/4661250,minkabu
+,みんかぶ,日本マイクロは急反発、通期業績・期末一括配当予想を上方修正,https://minkabu.jp/news/4661524,minkabu
+,みんかぶ,日本IPの魅力を武器に目指すは“エンタメ世界一”　ＧＥＮＤＡ　...,https://minkabu.jp/news/4393278,minkabu
+,みんかぶ,後場の日経平均は260円高でスタート、SUMCOやJTなどが上昇,https://minkabu.jp/news/4659307,minkabu
+,みんかぶ,外為：豪ドル、108円94銭前後と小幅な豪...,https://minkabu.jp/news/4661589,minkabu
+,みんかぶ,外為：英ポンド、211円64銭前後とポンド...,https://minkabu.jp/news/4661585,minkabu
+,みんかぶ,外為：南アランド、9円5455銭前後と小幅...,https://minkabu.jp/news/4661583,minkabu
+,みんかぶ,外為：ブラジルレアル、28円33銭前後とレ...,https://minkabu.jp/news/4661584,minkabu
+,みんかぶ,外為：スイスフラン、191円39銭前後と大...,https://minkabu.jp/news/4661586,minkabu
+,みんかぶ,外為：カナダドル、112円17銭前後とカナ...,https://minkabu.jp/news/4661587,minkabu
+,みんかぶ,外為：NZドル、88円68銭前後と同水準で推移,https://minkabu.jp/news/4661588,minkabu
+,みんかぶ,和井田(6158) コーポレート・ガバナン...,https://minkabu.jp/news/4661604,minkabu
+,株探,前場に注目すべき3つのポイント～カスタムAI半導体へのシフトも～,https://kabutan.jp/news/marketnews/?b=n202611130442,kabutan
+,みんかぶ,出来高変化率ランキング（10時台）～メドレ...,https://minkabu.jp/news/4661603,minkabu
+,株探,伊藤智洋が読む「日経平均株価・短期シナリオ」　(11月13日記）,https://kabutan.jp/news/marketnews/?b=n202611130364,kabutan
+,みんかぶ,今週の決算発表予定 三菱重、トヨタ、任天堂など (11月2日～6日),https://minkabu.jp/news/4647900,minkabu
+,みんかぶ,今週の決算発表予定 リクルート、三菱ＵＦＪ、ＳＢＧなど (11...,https://minkabu.jp/news/4653779,minkabu
+,株探,今朝の注目ニュース！　★児玉化、ＴＨＥＣＯＯ、ＪＳＨなどに注目！,https://kabutan.jp/news/marketnews/?b=n202611130329,kabutan
+,みんかぶ,今晩は159.45で押し目買いのイメージ。,https://minkabu.jp/news/4661315,minkabu
+,みんかぶ,上海株は0.08%高で取引を開始,https://minkabu.jp/news/4661602,minkabu
+,みんかぶ,ワタミ---ストップ高買い気配、MBO実施...,https://minkabu.jp/news/4661600,minkabu
+,みんかぶ,ドリムベッド(7791) 自己株式立会外買...,https://minkabu.jp/news/4661599,minkabu
+,みんかぶ,ドリムベッド(7791) 2027年3月期...,https://minkabu.jp/news/4661598,minkabu
+,みんかぶ,ティアンドエスグループ---26年9月期は...,https://minkabu.jp/news/4661590,minkabu
+,みんかぶ,ツガミ(6101) 連結子会社からの配当金...,https://minkabu.jp/news/4661605,minkabu
+,株探,オイシックスは続急伸、今期最終益予想を上方修正し期末一括配当予想を４円増額,https://kabutan.jp/news/marketnews/?b=n202611130638,kabutan
+,みんかぶ,オイシックスは続急伸、今期最終益予想を上方修正し期末一括配当予...,https://minkabu.jp/news/4661606,minkabu
+,みんかぶ,アマダは一時Ｓ高、旺盛な設備投資需要受け２７年３月期最終益予想...,https://minkabu.jp/news/4661563,minkabu
+,株探,アドテストが大幅反発、投資家向けイベントでＳｏＣ検査装置の成長シナリオを改めて意識,https://kabutan.jp/news/marketnews/?b=n202611130635,kabutan
+,みんかぶ,アドテストが大幅反発、投資家向けイベントでＳｏＣ検査装置の成長...,https://minkabu.jp/news/4661601,minkabu
+,みんかぶ,あくまで黒子として製造業を支える　技術承継機構　新居英一社長に聞く,https://minkabu.jp/news/4421712,minkabu
+,株探,【高配当利回り銘柄】ベスト30 ＜割安株特集＞　11月11日版,https://kabutan.jp/news/marketnews/?b=n202611111391,kabutan
+,株探,【明日の好悪材料】を開示情報でチェック！ (11月12日発表分),https://kabutan.jp/news/marketnews/?b=n202611121261,kabutan
+,みんかぶ,「ＴＯＰＩＸコア３０」が２位にランク、構成銘柄の入れ替えでも関...,https://minkabu.jp/news/4659284,minkabu
+,みんかぶ,「もみ合いスタート、リバウンドの動きが継続か」～黒岩の眼（朝刊）,https://minkabu.jp/news/4661462,minkabu
+,株探,★本日の【サプライズ決算】続報 (11月12日),https://kabutan.jp/news/marketnews/?b=n202611121167,kabutan
+,みんかぶ,AI投資は拡大途上、続く夢は「核融合発電」　フジクラ岡田直樹社...,https://minkabu.jp/news/4458570,minkabu
+,みんかぶ,10時の日経平均は850円高の6万1669円、アドテストが344.12円押し上げ,https://minkabu.jp/news/4661536,minkabu
+,みんかぶ,#日経平均株価の見通し材料,https://minkabu.jp/news/tag/nikkei-average,minkabu
