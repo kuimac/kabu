@@ -2237,7 +2237,6 @@ symbol,name,asset_type,association_code,yahoo_ticker,reason
 5246,ＥＬＥＭＥＮＴＳ,stock,,5246.T,グロース（内国株式）
 5247,ＢＴＭ,stock,,5247.T,グロース（内国株式）
 5248,テクノロジーズ,stock,,5248.T,グロース（内国株式）
-5249,あさかわシステムズ,stock,,5249.T,PRO Market
 524A,田村ビルズグループ,stock,,524A.T,PRO Market
 5250,ＧＭＯプライム・ストラテジー,stock,,5250.T,スタンダード（内国株式）
 5252,日本ナレッジ,stock,,5252.T,グロース（内国株式）
@@ -4119,7 +4118,6 @@ symbol,name,asset_type,association_code,yahoo_ticker,reason
 9330,揚羽,stock,,9330.T,グロース（内国株式）
 9331,キャスター,stock,,9331.T,グロース（内国株式）
 9332,ＮＩＳＳＯホールディングス,stock,,9332.T,プライム（内国株式）
-9335,テクノクリエイティブ,stock,,9335.T,PRO Market
 9336,大栄環境,stock,,9336.T,プライム（内国株式）
 9337,トリドリ,stock,,9337.T,グロース（内国株式）
 9339,コーチ・エィ,stock,,9339.T,スタンダード（内国株式）
