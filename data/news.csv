@@ -1,4 +1,9 @@
 published,source,title,link,category
+2026-11-24T16:00:00+09:00,JPXマーケットニュース,[東証]新規上場の承認（ETF）：ニッセイＥＴＦ　日経高配当株３０（ニッセイアセットマネジメント）,https://www.jpx.co.jp/news/1070/20261124.html,markets_news
+2026-11-24T16:00:00+09:00,JPXマーケットニュース,[東証]スタンダード市場からプライム市場への変更：（株）ベルテクスコーポレーション,https://www.jpx.co.jp/listing/stocks/transfers/index.html,markets_news
+2026-11-24T16:00:00+09:00,JPXニュース,[JPX総研]個人向けデータ配信サービスJ-Quants API　リモートMCPサーバ提供開始,https://www.jpx.co.jp/corporate/news/news-releases/6020/20261124-01.html,jpx-news
+2026-11-24T15:30:00+09:00,JPXマーケットニュース,[東証]改善報告書の公衆の縦覧：（株）ＢｌｕｅＭｅｍｅ,https://www.jpx.co.jp/news/1023/20261124-11.html,markets_news
+2026-11-24T13:00:00+09:00,JPXマーケットニュース,[東証]新規上場日の初値決定前の気配運用について：（株）TOKIUM,https://www.jpx.co.jp/news/1031/20261124_01.html,markets_news
 2026-11-20T19:50:00+09:00,JPXマーケットニュース,[東証]監理銘柄（確認中）の指定：（株）ワコム,https://www.jpx.co.jp/news/1023/20261120-13.html,markets_news
 2026-11-20T17:55:00+09:00,JPXマーケットニュース,[東証]監理銘柄（確認中）の指定：（株）Ｉ－ｎｅ,https://www.jpx.co.jp/news/1023/20261120-12.html,markets_news
 2026-11-20T17:01:00+09:00,JPXマーケットニュース,"[OSE,TOCOM]デリバティブの祝日取引の非実施について（2026年11月23日）",https://www.jpx.co.jp/news/2040/20261120-01.html,markets_news
@@ -20,22 +25,3 @@ published,source,title,link,category
 2026-11-17T15:45:00+09:00,JPXマーケットニュース,[東証]制限値幅の拡大：1銘柄,https://www.jpx.co.jp/news/1030/20261117-01.html,markets_news
 2026-11-17T13:00:00+09:00,JPXニュース,[JPX総研]証券業界における横断的な共通データ基盤「S-BASE」の名称決定及びβ環境利用募集開始について,https://www.jpx.co.jp/corporate/news/news-releases/6020/20261117-02.html,jpx-news
 2026-11-17T09:00:00+09:00,JPXニュース,[JPX総研]法人向けデータ配信サービス「J-Quants Pro」J-Quants TDnet API提供開始のお知らせ,https://www.jpx.co.jp/corporate/news/news-releases/6020/20261117-01.html,jpx-news
-2026-11-16T16:15:00+09:00,JPXマーケットニュース,[東証]上場廃止の決定：（株）ヒューマンアジャスト,https://www.jpx.co.jp/news/1021/20261116-19.html,markets_news
-2026-11-16T16:00:00+09:00,JPXマーケットニュース,[東証]新規上場の承認（スタンダード市場）：（株）ＩＧホールディングス,https://www.jpx.co.jp/listing/stocks/new/index.html,markets_news
-2026-11-16T16:00:00+09:00,JPXマーケットニュース,[東証]新規上場の承認（グロース市場）：（株）コネクティ,https://www.jpx.co.jp/listing/stocks/new/index.html,markets_news
-2026-11-16T16:00:00+09:00,JPXマーケットニュース,[東証]新規上場の承認（TOKYO PRO Market）：InfiniCloud（株）,https://www.jpx.co.jp/equities/products/tpm/issues/index.html,markets_news
-2026-11-16T16:00:00+09:00,JPXマーケットニュース,[東証]新規上場の承認（ETF）：ＭＡＸＩＳ日本国債上場投信（三菱ＵＦＪアセットマネジメント）,https://www.jpx.co.jp/news/1070/20261116-01.html,markets_news
-2026-11-16T16:00:00+09:00,JPXマーケットニュース,[東証]新規上場の承認（ETF）：iシェアーズ　日本株 通信サービス トップ 10 ETF （MSCI）他9銘柄（ブラックロック･ジャパン）,https://www.jpx.co.jp/news/1070/20261116-03.html,markets_news
-2026-11-16T16:00:00+09:00,JPXマーケットニュース,[東証]新規上場の承認（ETF）：iシェアーズ　日本株 半導体メーカー トップ 10 ETF （MSCI）他9銘柄（ブラックロック･ジャパン）,https://www.jpx.co.jp/news/1070/20261116-02.html,markets_news
-2026-11-16T15:45:00+09:00,JPXマーケットニュース,[東証]制限値幅の拡大：1銘柄,https://www.jpx.co.jp/news/1030/20261116-01.html,markets_news
-2026-11-16T15:40:00+09:00,JPXマーケットニュース,[東証]上場廃止等の決定：（株）ストレージ王,https://www.jpx.co.jp/news/1023/20261116-11.html,markets_news
-,株探,転換局面で資金シフト加速、値千金の好業績ディフェンシブ厳選5銘柄 ＜株探トップ特集＞,https://kabutan.jp/news/marketnews/?b=n202611210263,kabutan
-,株探,伊藤智洋が読むマーケット・シナリオ【週間展望】 11月23日版,https://kabutan.jp/news/marketnews/?b=n202611230011,kabutan
-,株探,上昇トレンドに乗る【低PER＆低PBR】 44社選出　＜テクニカル特集＞ 11月20日版,https://kabutan.jp/news/marketnews/?b=n202611230029,kabutan
-,株探,まだ間に合う、11月配当【高利回り】ベスト30 ＜割安株特集＞,https://kabutan.jp/news/marketnews/?b=n202611230004,kabutan
-,株探,【杉村富生の短期相場観測】 ─ここは阿呆になって買う厳選7銘柄！,https://kabutan.jp/news/marketnews/?b=n202611220026,kabutan
-,株探,【明日の好悪材料】を開示情報でチェック！ (11月20日発表分),https://kabutan.jp/news/marketnews/?b=n202611230018,kabutan
-,株探,【北浜流一郎のズバリ株先見！】 ─ 「好取組」の需給ブースターが押し上げる意外な躍進株5選！,https://kabutan.jp/news/marketnews/?b=n202611220027,kabutan
-,株探,「ゴルディロックス」な円安、日本の輸出株に好環境 ＜伊賀大記のクロマなマクロ展望＞,https://kabutan.jp/news/marketnews/?b=n202611230008,kabutan
-,株探,26年7-9月期【利益倍増】企業はこれだ！〔第1弾〕 33社選出 ＜成長株特集＞,https://kabutan.jp/news/marketnews/?b=n202611230037,kabutan
-,株探,10万円以下で買える、増収増益＆低PBR〔第2弾〕27社 ＜割安株特集＞,https://kabutan.jp/news/marketnews/?b=n202611220049,kabutan
