@@ -1,4 +1,11 @@
 published,source,title,link,category
+2026-11-27T18:00:00+09:00,JPXマーケットニュース,[東証]新規上場日の基準値段等：ＮＥＸＴ ＦＵＮＤＳ ＣＳＯＰ 中国ＡＩ関連株（香港上場）指数連動型上場投信（コード671A）,https://www.jpx.co.jp/news/1030/20261127-02.html,markets_news
+2026-11-27T16:10:00+09:00,JPXマーケットニュース,[東証]上場廃止等の決定：（株）ＪＰＭＣ,https://www.jpx.co.jp/news/1023/20261127-11.html,markets_news
+2026-11-27T16:00:00+09:00,JPXマーケットニュース,[東証]新規上場日の呼値の単位：Ｏｎｅ ＥＴＦ 円建て社債（コード685A）,https://www.jpx.co.jp/news/1030/20261127-01.html,markets_news
+2026-11-27T16:00:00+09:00,JPXマーケットニュース,[東証]上場廃止理由及び上場廃止日の変更：（株）さいか屋,https://www.jpx.co.jp/news/1021/20261127-21.html,markets_news
+2026-11-27T16:00:00+09:00,JPXマーケットニュース,[東証]上場廃止に係る猶予期間からの解除：サンケイリアルエステート投資法人,https://www.jpx.co.jp/news/1021/20261127-18.html,markets_news
+2026-11-27T16:00:00+09:00,JPXマーケットニュース,[東証]TOKYO PRO Marketへの上場申請：（株）ランドピア,https://www.jpx.co.jp/equities/products/tpm/issues/index.html,markets_news
+2026-11-27T15:30:00+09:00,JPXニュース,[JPX]2026年大納会・2027年大発会について,https://www.jpx.co.jp/corporate/news/news-releases/0061/20261127-01.html,jpx-news
 2026-11-27T13:00:00+09:00,JPXマーケットニュース,[東証]新規上場日の初値決定前の気配運用について：ジャパンホームシールド（株）,https://www.jpx.co.jp/news/1031/20261127_01.html,markets_news
 2026-11-27T13:00:00+09:00,JPXマーケットニュース,[東証]新規上場日の初値決定前の気配運用について：InfiniCloud（株）,https://www.jpx.co.jp/news/1031/20261127_02.html,markets_news
 2026-11-27T12:00:00+09:00,JPXニュース,[JPX]臨時決算及び剰余金の配当（中間配当）に関するお知らせ,https://www.jpx.co.jp/corporate/news/news-releases/0063/t13vrt000002qhap-att/20261127.pdf,jpx-news
@@ -27,18 +34,3 @@ published,source,title,link,category
 2026-11-20T16:00:00+09:00,JPXマーケットニュース,[東証]プライム市場からスタンダード市場への変更：（株）日本エム・ディ・エム,https://www.jpx.co.jp/listing/stocks/transfers/index.html,markets_news
 2026-11-20T16:00:00+09:00,JPXマーケットニュース,[東証]TOKYO PRO Marketへの上場申請：（株）ＭＡＣオフィス,https://www.jpx.co.jp/equities/products/tpm/issues/index.html,markets_news
 2026-11-20T15:30:00+09:00,JPXマーケットニュース,[OSE]指数オプション取引に係る呼値の制限値幅（2026年12月1日（取引日ベース）から適用）,https://www.jpx.co.jp/markets/derivatives/price-limits/,markets_news
-,株探,２７日の株式相場見通し＝続伸、欧州株大幅高が支援材料に　キオクシアに注目,https://kabutan.jp/news/marketnews/?b=n202611270042,kabutan
-,株探,話題株ピックアップ【昼刊】：テラドローン、電子材料、ＡＤプラズマ,https://kabutan.jp/news/marketnews/?b=n202611270471,kabutan
-,株探,経済成長と安全保障を両立、再評価の芽膨らむ「フードテック」関連株 ＜株探トップ特集＞,https://kabutan.jp/news/marketnews/?b=n202611261195,kabutan
-,株探,株式市場に赤信号、波乱相場で資産を守るルールとは？ ＜切り出し齋藤正勝のマーケット情報最前線＞,https://kabutan.jp/news/marketnews/?b=n202611260468,kabutan
-,株探,東京為替：ドル・円は小高い、米株高期待で,https://kabutan.jp/news/marketnews/?b=n202611270694,kabutan
-,株探,日経平均の上げ幅が1200円突破,https://kabutan.jp/news/marketnews/?b=n202611270695,kabutan
-,株探,後場に注目すべき3つのポイント～欧州株高を受け半導体関連株に買い,https://kabutan.jp/news/marketnews/?b=n202611270560,kabutan
-,株探,大ガスが反発、日系企業で初となる豪州のバイオメタン開発事業者へ出資,https://kabutan.jp/news/marketnews/?b=n202611270731,kabutan
-,株探,前場に注目すべき3つのポイント～半導体やAI関連株の底堅さを見極め～,https://kabutan.jp/news/marketnews/?b=n202611270092,kabutan
-,株探,伊藤智洋が読む「日経平均株価・短期シナリオ」　(11月27日記）,https://kabutan.jp/news/marketnews/?b=n202611270057,kabutan
-,株探,今朝の注目ニュース！　★テラドローン、タカショー、パワーソリュなどに注目！,https://kabutan.jp/news/marketnews/?b=n202611270030,kabutan
-,株探,キオクシア---大幅続伸、エヌビディアと連携しSSDの活用を検証と,https://kabutan.jp/news/marketnews/?b=n202611270720,kabutan
-,株探,【明日の好悪材料】を開示情報でチェック！ (11月26日発表分),https://kabutan.jp/news/marketnews/?b=n202611261205,kabutan
-,株探,「時間は友、衝動は敵」、AIバブル崩壊論の前に心すべき金言＜村松一之・米国株投資の羅針盤＞,https://kabutan.jp/news/marketnews/?b=n202611260364,kabutan
-,株探,26年7-9月期【利益倍増】企業はこれだ！〔第2弾〕 34社選出 ＜成長株特集＞,https://kabutan.jp/news/marketnews/?b=n202611261198,kabutan
